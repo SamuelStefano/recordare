@@ -2,6 +2,7 @@ import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
 import { CART_STORAGE_KEY } from '../cart/CartProvider';
+import { OrderRateLimitError } from '../lib/catalog';
 import { renderWithProviders } from '../test/render';
 
 const createOrder = vi.hoisted(() => vi.fn());
@@ -82,6 +83,21 @@ describe('checkout', () => {
         )
       ).toBeInTheDocument()
     );
+    expect(JSON.parse(localStorage.getItem(CART_STORAGE_KEY) ?? '[]')).toHaveLength(1);
+  });
+
+  it('não manda esperar quando o freio do banco barra o pedido', async () => {
+    const user = userEvent.setup();
+    createOrder.mockRejectedValue(new OrderRateLimitError('freio'));
+    renderWithProviders(<App />, { route: '/carrinho' });
+
+    await fillForm(user);
+    await user.click(screen.getByRole('button', { name: 'Enviar pedido' }));
+
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent(/aguarde alguns minutos/)
+    );
+    expect(screen.queryByText(/tente de novo/)).not.toBeInTheDocument();
     expect(JSON.parse(localStorage.getItem(CART_STORAGE_KEY) ?? '[]')).toHaveLength(1);
   });
 

@@ -113,6 +113,8 @@ const pt = {
   errPhone: 'Informe um telefone válido, com DDD.',
   errNote: 'A observação passou de 1000 caracteres.',
   errSubmit: 'Não conseguimos registrar seu pedido. Seu carrinho está intacto — tente de novo.',
+  errTooMany:
+    'Já recebemos vários pedidos deste telefone agora há pouco. Seu carrinho continua guardado: aguarde alguns minutos antes de enviar de novo.',
   errEmptyCart: 'Seu carrinho está vazio.',
 
   orderTitle: 'Pedido recebido',
@@ -268,6 +270,8 @@ const en: Record<TranslationKey, string> = {
   errPhone: 'Enter a valid phone number, including area code.',
   errNote: 'The note went over 1000 characters.',
   errSubmit: 'We could not register your order. Your cart is intact — please try again.',
+  errTooMany:
+    'We already received several orders from this phone number a moment ago. Your cart is still saved — please wait a few minutes before sending again.',
   errEmptyCart: 'Your cart is empty.',
 
   orderTitle: 'Order received',

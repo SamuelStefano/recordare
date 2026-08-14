@@ -10,7 +10,7 @@ import { ProductImage } from '../components/ui/ProductImage';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { useLang } from '../i18n/lang-context';
 import { FREE_SHIPPING_FROM, MAX_QTY, cartTotal, shippingFor } from '../lib/cart';
-import { createOrder, type CartItem } from '../lib/catalog';
+import { OrderRateLimitError, createOrder, type CartItem } from '../lib/catalog';
 import { money } from '../lib/format';
 import { productName, variantLabel } from '../lib/labels';
 import { MAX_NOTE, hasErrors, saveReceipt, validateOrder, type OrderErrors } from '../lib/order';
@@ -104,7 +104,7 @@ export function CartPage() {
 
   const [draft, setDraft] = useState({ customer: '', phone: '', note: '' });
   const [errors, setErrors] = useState<OrderErrors>({});
-  const [failed, setFailed] = useState(false);
+  const [failure, setFailure] = useState<'errSubmit' | 'errTooMany' | null>(null);
   const [sending, setSending] = useState(false);
 
   useDocumentMeta({
@@ -121,7 +121,7 @@ export function CartPage() {
     event.preventDefault();
     const found = validateOrder(draft, items);
     setErrors(found);
-    setFailed(false);
+    setFailure(null);
     if (hasErrors(found)) return;
 
     setSending(true);
@@ -136,8 +136,8 @@ export function CartPage() {
       // Só limpa depois que o banco confirmou: falha de rede não pode apagar o carrinho.
       clear();
       navigate(`/pedido/${id}`);
-    } catch {
-      setFailed(true);
+    } catch (cause) {
+      setFailure(cause instanceof OrderRateLimitError ? 'errTooMany' : 'errSubmit');
     } finally {
       setSending(false);
     }
@@ -212,9 +212,9 @@ export function CartPage() {
               hint={`${draft.note.length}/${MAX_NOTE}`}
             />
 
-            {failed && (
+            {failure && (
               <p role="alert" className="text-[13px] text-brand-dark">
-                {t('errSubmit')}
+                {t(failure)}
               </p>
             )}
 
