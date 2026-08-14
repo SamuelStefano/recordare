@@ -50,10 +50,12 @@ Só existem chaves **públicas** no cliente — nada de service-role no bundle.
 Migrations em `supabase/migrations/`, aplicadas em ordem no schema `recordare`.
 
 - `products` — leitura pública apenas de `active = true`.
-- `orders` / `order_items` — **insert-only** para o público, sem policy de `select`. Por isso o id do
-  pedido é gerado no cliente e o recibo da confirmação vive em `sessionStorage`: ninguém lê o pedido
-  de outra pessoa pela API.
-- O `total` do pedido nunca vem do cliente — um trigger recalcula a partir do preço vigente.
+- `orders` — **insert-only** para o público, sem policy de `select`. Por isso o id do pedido é gerado
+  no cliente e o recibo da confirmação vive em `sessionStorage`: ninguém lê o pedido de outra pessoa
+  pela API. Os itens ficam em `items jsonb` no próprio pedido.
+- O `total` do pedido nunca vem do cliente — um trigger recalcula a partir do preço vigente em
+  `products`, então mexer no payload não muda o valor gravado. É o total das peças; frete é
+  confirmado no atendimento.
 
 ## Fluxo de venda
 

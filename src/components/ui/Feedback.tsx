@@ -37,12 +37,14 @@ interface EmptyStateProps {
   title: string;
   body: string;
   action?: ReactNode;
+  /** `h1` quando o estado vazio É a página (404, carrinho vazio), senão `h2`. */
+  as?: 'h1' | 'h2';
 }
 
-export function EmptyState({ title, body, action }: EmptyStateProps) {
+export function EmptyState({ title, body, action, as: Heading = 'h2' }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center gap-3 border border-line px-6 py-16 text-center">
-      <h2 className="font-serif text-[26px] tracking-[-.01em] text-ink">{title}</h2>
+      <Heading className="font-serif text-[26px] tracking-[-.01em] text-ink">{title}</Heading>
       <p className="max-w-md text-[13.5px] leading-relaxed text-muted">{body}</p>
       {action && <div className="mt-2">{action}</div>}
     </div>

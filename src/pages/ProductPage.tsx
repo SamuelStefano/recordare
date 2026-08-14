@@ -311,6 +311,7 @@ export function ProductPage() {
     return (
       <Container className="py-16">
         <EmptyState
+          as="h1"
           title={t('notFoundTitle')}
           body={t('notFoundBody')}
           action={<ButtonLink href="/catalogo">{t('backCatalog')}</ButtonLink>}

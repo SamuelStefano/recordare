@@ -147,6 +147,7 @@ export function CartPage() {
     return (
       <Container wide={false} className="py-16">
         <EmptyState
+          as="h1"
           title={t('cartEmpty')}
           body={t('emptyBody')}
           action={<ButtonLink href="/catalogo">{t('cartBrowse')}</ButtonLink>}

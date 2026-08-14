@@ -15,6 +15,7 @@ export function NotFoundPage() {
   return (
     <Container wide={false} className="py-20">
       <EmptyState
+        as="h1"
         title={t('pageNotFoundTitle')}
         body={t('pageNotFoundBody')}
         action={<ButtonLink href="/">{t('backHome')}</ButtonLink>}
