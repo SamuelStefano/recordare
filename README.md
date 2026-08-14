@@ -115,6 +115,12 @@ esconde o atalho e a loja promete ligar.
 `npm run ml:export` valida cada anúncio (título ≤ 60 caracteres, sem palavra promocional, sem emoji,
 sem contato externo na descrição) e sai com erro se algo reprovar — o mesmo job roda no CI.
 
+> **Falta antes de anunciar: foto real das peças.** O catálogo foi semeado com imagens de banco
+> público (Wikimedia) e o export marca cada uma com `NÃO PUBLIQUE`. Não é limitação técnica: o
+> Mercado Livre baixa a foto ao criar o anúncio, então subir assim publica a peça com o retrato de
+> outra pessoa. Isso reprova por direito de imagem e derruba a reputação do vendedor. Trocar
+> `products.img` pela foto real (de preferência servida pela própria loja) apaga o aviso sozinho.
+
 ## Hospedagem
 
 Produção hoje é **GitHub Pages** (`https://samuelstefano.github.io/recordare/`), publicada pelo

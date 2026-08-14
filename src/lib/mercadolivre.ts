@@ -162,17 +162,23 @@ export function buildListing(product: Product, storeOrigin: string): Listing {
   };
 }
 
-// O Mercado Livre baixa a foto na hora de criar o anúncio. Como o host de terceiro já devolveu 429
-// quando as peças foram pedidas em rajada, um anúncio pode nascer sem imagem — e anúncio sem foto
-// não vende. Avisa em vez de reprovar: bloquear pararia o kit inteiro por um risco que só existe
-// na publicação.
+// Host de banco de imagem: a foto não é da peça, é retrato de terceiro que veio junto na semeadura
+// do catálogo. Publicar assim não é risco técnico, é anunciar produto com a foto de outra pessoa.
+const PLACEHOLDER_HOSTS = /(^|\.)wikimedia\.org$|(^|\.)wikipedia\.org$|(^|\.)unsplash\.com$/;
+
+// O Mercado Livre baixa a foto na hora de criar o anúncio, então tudo que estiver errado na imagem
+// vira anúncio publicado errado. Avisa em vez de reprovar: bloquear pararia o kit inteiro, e quem
+// troca foto de catálogo é o dono da loja, não o build.
 function checkImageHost(listing: Listing, storeOrigin: string): ListingIssue[] {
   if (listing.imageUrl.startsWith(storeOrigin.replace(/\/$/, ''))) return [];
+  const host = new URL(listing.imageUrl).host;
   return [
     {
       sku: listing.sku,
       field: 'image',
-      message: `Foto hospedada fora da loja (${new URL(listing.imageUrl).host}) — se responder 429 o anúncio sobe sem imagem`,
+      message: PLACEHOLDER_HOSTS.test(host)
+        ? `NÃO PUBLIQUE: a foto é de banco de imagem (${host}), não é a peça — troque pela foto real antes de anunciar`
+        : `Foto hospedada fora da loja (${host}) — se o host responder 429 o anúncio sobe sem imagem`,
     },
   ];
 }
@@ -243,6 +249,19 @@ export function toCsv(listings: Listing[]): string {
 
 export function toMarkdown(kit: ListingKit): string {
   const lines = ['# Anúncios Recordare — Mercado Livre', ''];
+
+  // O bloqueio real deste kit não é técnico: um anúncio com foto de banco de imagem sobe e vende
+  // errado. Vai no topo porque é a primeira coisa que precisa ser lida, antes dos anúncios.
+  const impeditivos = kit.warnings.filter((w) => w.message.startsWith('NÃO PUBLIQUE'));
+  if (impeditivos.length) {
+    lines.push(
+      '> **Antes de publicar:** ' +
+        `${impeditivos.length} de ${kit.listings.length} anúncios ainda usam foto de banco de ` +
+        'imagem. Troque pela foto real da peça — publicar assim anuncia a peça com a imagem de ' +
+        'outra pessoa.',
+      ''
+    );
+  }
 
   if (kit.warnings.length) {
     lines.push('## Avisos', '');

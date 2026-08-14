@@ -38,6 +38,14 @@ await writeFile(join(outDir, 'anuncios.md'), toMarkdown(kit), 'utf8');
 console.log(`${kit.listings.length} anúncios gerados em out/mercadolivre/`);
 
 if (kit.warnings.length > 0) {
+  // Dez linhas iguais viram ruído. O que precisa ser lido é a contagem, no topo.
+  const impeditivos = kit.warnings.filter((w) => w.message.startsWith('NÃO PUBLIQUE'));
+  if (impeditivos.length > 0) {
+    console.warn(
+      `\n⚠  ${impeditivos.length} de ${kit.listings.length} anúncios ainda usam foto de banco de imagem.` +
+        '\n   Publicar assim anuncia a peça com a foto de outra pessoa — troque antes de subir.'
+    );
+  }
   console.warn(`\n${kit.warnings.length} aviso(s):`);
   for (const warning of kit.warnings) {
     console.warn(`  ${warning.sku} · ${warning.field}: ${warning.message}`);

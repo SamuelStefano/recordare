@@ -110,6 +110,30 @@ describe('buildKit', () => {
     const kit = buildKit([makeProduct({ sku: 'X7', img: `${STORE}/fotos/p.jpg` })], STORE);
     expect(kit.warnings).toEqual([]);
   });
+
+  // Foto de banco de imagem não é risco de entrega: é anunciar a peça com o retrato de um
+  // desconhecido. Precisa se separar do aviso de host instável, senão some no meio da lista.
+  it('separa foto de banco de imagem de host externo qualquer', () => {
+    const banco = buildKit(
+      [makeProduct({ sku: 'X8', img: 'https://commons.wikimedia.org/wiki/Special:FilePath/x.jpg' })],
+      STORE
+    );
+    expect(banco.issues).toEqual([]);
+    expect(banco.warnings[0].message).toMatch(/^NÃO PUBLIQUE/);
+
+    const cdn = buildKit([makeProduct({ sku: 'X9', img: 'https://cdn.test/p.jpg' })], STORE);
+    expect(cdn.warnings[0].message).not.toMatch(/^NÃO PUBLIQUE/);
+  });
+
+  it('abre o markdown com o impedimento, não com o primeiro anúncio', () => {
+    const markdown = toMarkdown(
+      buildKit(
+        [makeProduct({ sku: 'X8', img: 'https://upload.wikimedia.org/x.jpg' })],
+        STORE
+      )
+    );
+    expect(markdown.split('\n')[2]).toMatch(/Antes de publicar.*1 de 1/);
+  });
 });
 
 describe('buildListing', () => {
