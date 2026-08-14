@@ -1,8 +1,8 @@
 # DR-001 — Biblioteca de roteamento
 
-**Status:** aberta — precisa de OK do Samuel
+**Status:** decidida — B (wouter 3.10.0)
 **Data:** 2026-08-14
-**Bloqueia:** Sprint 1 (layout base). Nada de tela pode começar antes.
+**Bloqueia:** nada. Sprint 1 liberada.
 
 ## Contexto
 
@@ -38,4 +38,16 @@ um problema que a loja não tem, ao custo de 8× o tamanho.
 
 ## Decisão
 
-_(aguardando)_
+**B — `wouter` 3.10.0.** Instalado.
+
+A loja tem 4 rotas planas, sem dado aninhado, sem loader e sem SSR no escopo. O que
+`react-router` traria além disso é peso: ~8× o tamanho para resolver problemas que
+esta loja não tem. Numa vitrine que abre no 4G de quem está resolvendo um funeral,
+kilobyte no caminho crítico é decisão de produto, não de gosto.
+
+A query string fica em `useFilters()` sobre `URLSearchParams` nativo — não é lacuna
+do wouter, é código que eu escreveria de qualquer jeito para tipar os filtros.
+
+Nenhum componente de tela importa o roteador diretamente: navegação sai de `<Link>`
+e de `useLocation` dentro de `components/layout`. Se um dia entrar SSR/SEO avançado
+(hoje fora de escopo), a troca fica contida em `App.tsx` e `useFilters`.

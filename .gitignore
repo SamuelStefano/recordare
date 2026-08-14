@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 .env
+
+# Kit de anúncios gerado por `npm run ml:export`
+out

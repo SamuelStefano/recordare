@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /carrinho
+Disallow: /pedido/
+
+Sitemap: https://samuelstefano.github.io/recordare/sitemap.xml

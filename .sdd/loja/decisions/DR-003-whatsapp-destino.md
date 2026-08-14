@@ -1,8 +1,8 @@
 # DR-003 — Número de WhatsApp de destino
 
-**Status:** aberta — precisa de informação do Samuel
+**Status:** decidida — `VITE_WHATSAPP_PHONE`, opcional, com degradação
 **Data:** 2026-08-14
-**Bloqueia:** Sprint 4 (fechamento do pedido).
+**Bloqueia:** nada. Falta só você preencher o valor.
 
 ## Contexto
 
@@ -32,4 +32,33 @@ função. Se o atendimento é só em português, deixar como está — está cor
 
 ## Decisão
 
-_(aguardando)_
+**`VITE_WHATSAPP_PHONE` no `.env`, e o pedido não depende dele para existir.**
+
+O número continua sendo seu para preencher, mas eu me recusei a deixar isso bloquear
+a loja. O desenho é:
+
+1. `createOrder()` grava o pedido em `recordare.orders`. Esta é a etapa que não pode
+   falhar — é o registro de venda, e o total sai do trigger.
+2. Só **depois** do insert bem-sucedido a tela navega para `/pedido`, que mostra o
+   número do pedido e o resumo.
+3. Se `VITE_WHATSAPP_PHONE` estiver preenchido, `/pedido` abre o `wa.me` com o resumo
+   e oferece o botão de reenviar. Se estiver vazio, a tela diz que o pedido foi
+   recebido e que a loja entra em contato — **e o pedido está salvo do mesmo jeito**.
+
+Isso inverte a dependência: sem o número a loja perde um atalho de atendimento, não a
+venda. Um pedido perdido porque uma variável de ambiente estava vazia seria a pior
+forma possível de falhar.
+
+**Validação do valor.** O número é saneado antes de entrar na URL (`^\d{10,15}$` após
+remover não-dígitos). Se vier lixo no `.env`, o link não é gerado — em vez de produzir
+um `wa.me/<lixo>` que abre o WhatsApp num contato inexistente.
+
+**Não é segredo.** `wa.me/<numero>` é público por construção; o número vai no rodapé.
+`VITE_*` é o lugar certo e não viola a regra de segredos do `MARATONA.md`.
+
+## Pendência menor — resolvida
+
+`whatsappMessage()` agora recebe `lang`. A loja em inglês manda o pedido em inglês.
+O custo foi um dicionário de seis linhas, e o inverso — cliente que navegou em inglês
+recebendo `Olá / Pedido: / Total:` — é o tipo de detalhe que faz a loja parecer
+amadora justamente no momento da compra.

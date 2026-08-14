@@ -1,16 +1,35 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Espelha o CSP de vercel.json. Em host sem controle de header (GitHub Pages) esta meta é
+         a única barreira; `frame-ancestors` e HSTS só existem via header, ver README. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://upload.wikimedia.org https://commons.wikimedia.org; connect-src 'self' https://qvoytjrfuyeammxsuwtx.supabase.co; form-action 'self'; base-uri 'self'; object-src 'none'"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <title>Recordare</title>
+    <title>Recordare · Homenagens em porcelana e granito</title>
+    <meta
+      name="description"
+      content="Medalhões, placas e porcelanatos memoriais feitos sob encomenda. Peças em porcelana, bronze e granito com acabamento artesanal e envio para todo o Brasil."
+    />
+    <meta name="theme-color" content="#8C5A3C" />
+    <meta property="og:site_name" content="Recordare" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Recordare · Homenagens em porcelana e granito" />
+    <meta
+      property="og:description"
+      content="Medalhões, placas e porcelanatos memoriais feitos sob encomenda, com acabamento artesanal."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
     <div id="root"></div>
