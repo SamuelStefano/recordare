@@ -96,7 +96,7 @@ function render(page: Page) {
     `<meta property="og:title" content="${escape(page.title)}" />`,
     `<meta property="og:description" content="${escape(page.description)}" />`,
     `<meta property="og:url" content="${escape(canonical)}" />`,
-    page.image ? `<meta property="og:image" content="${escape(page.image)}" />` : '',
+    `<meta property="og:image" content="${escape(page.image ?? `${origin}/og.png`)}" />`,
     `<meta name="robots" content="${page.noindex ? 'noindex,follow' : 'index,follow'}" />`,
     `<link rel="canonical" href="${escape(canonical)}" />`,
     page.jsonLd

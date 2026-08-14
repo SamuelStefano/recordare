@@ -63,6 +63,25 @@ describe('idioma', () => {
   });
 });
 
+describe('metadados de compartilhamento', () => {
+  const meta = (property: string) =>
+    document.head.querySelector<HTMLMetaElement>(`meta[property="${property}"]`)?.content;
+
+  it('dá um card à home mesmo sem foto de peça', () => {
+    renderWithProviders(<App />);
+    expect(meta('og:image')).toMatch(/\/og\.png$/);
+    expect(meta('og:title')).toContain('Recordare');
+  });
+
+  it('usa a foto da peça quando existe uma', async () => {
+    renderWithProviders(<App />, { route: '/peca/medalhao-oval-classico' });
+    await waitFor(() => expect(meta('og:image')).not.toMatch(/\/og\.png$/));
+    expect(document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href).toMatch(
+      /\/peca\/medalhao-oval-classico\/$/
+    );
+  });
+});
+
 describe('catálogo', () => {
   it('filtra por categoria pela query string da url', () => {
     renderWithProviders(<App />, { route: '/catalogo?cat=lapides' });

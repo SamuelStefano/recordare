@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { siteUrl } from '../lib/site';
+import { shareImage, siteUrl } from '../lib/site';
 
 interface Meta {
   title: string;
@@ -45,7 +45,7 @@ export function useDocumentMeta({ title, description, path, image, noindex, json
     setMeta('og:description', description, 'property');
     setMeta('og:type', 'website', 'property');
     setMeta('twitter:card', 'summary_large_image');
-    if (image) setMeta('og:image', image, 'property');
+    setMeta('og:image', image ?? shareImage(), 'property');
     setMeta('robots', noindex ? 'noindex,follow' : 'index,follow');
 
     const canonical = siteUrl(path);
