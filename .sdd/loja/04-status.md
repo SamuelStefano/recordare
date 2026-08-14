@@ -4,9 +4,10 @@
 > abrir o projeto daqui a um mês lê só isto para saber onde parou.
 
 **Última atualização:** 2026-08-14
-**Versão atual:** v0.1.0 (fundação)
-**Sprint corrente:** Sprint 0 — destravar decisões
-**Gate:** verde (tsc limpo · 9 testes · build em 199 ms · bundle 190 kB / 60 kB gz)
+**Versão atual:** v1.0.0 (loja no ar)
+**Sprint corrente:** nenhuma — escopo da rodada entregue
+**Gate:** verde (tsc limpo · oxlint silencioso · 84 testes · build em 339 ms · bundle 458 kB / 132 kB gz)
+**Produção:** https://samuelstefano.github.io/recordare/
 
 ---
 
@@ -19,22 +20,25 @@
 | A1 | Schema, RLS, trigger de total, 10 produtos semeados | — | ✅ Concluído |
 | A2 | Camada de dados (`fetchProducts`, `createOrder`, tipos) | — | ✅ Concluído |
 | A3 | Lógica de carrinho e mensagem de WhatsApp (testada) | — | ✅ Concluído |
-| A4 | Roteamento das 4 telas | 1 | ⛔ Bloqueado por DR-001 |
-| A5 | Idioma pt/en (contexto + dicionário + `pick`) | 1 | ⬜ A fazer |
-| A6 | Primitivos de UI e layout (Header, Footer) | 1 | ⬜ A fazer |
-| A7 | Página Home | 1 | ⬜ A fazer |
-| A8 | Página Catálogo com filtros na URL | 2 | ⬜ A fazer |
-| A9 | Página Produto + calculadora de m² | 3 | ⬜ A fazer |
-| A10 | Carrinho, formulário e envio do pedido | 4 | ⛔ Bloqueado por DR-003 |
+| A4 | Roteamento das 5 telas | 1 | ✅ Concluído |
+| A5 | Idioma pt/en (contexto + dicionário + `pick`) | 1 | ✅ Concluído |
+| A6 | Primitivos de UI e layout (Header, Footer) | 1 | ✅ Concluído |
+| A7 | Página Home | 1 | ✅ Concluído |
+| A8 | Página Catálogo com filtros na URL | 2 | ✅ Concluído |
+| A9 | Página Produto + calculadora de m² | 3 | ✅ Concluído |
+| A10 | Carrinho, formulário e envio do pedido | 4 | ✅ Concluído |
+| A11 | Kit de anúncios do Mercado Livre validado no CI | — | ✅ Concluído |
 
 ### Média prioridade — qualidade
 
 | ID | Item | Sprint | Status |
 |---|---|---|---|
-| M1 | Responsivo 360 / 768 / 1280 | 5 | ⬜ A fazer |
-| M2 | Acessibilidade básica (foco, `alt`, contraste, teclado) | 5 | ⬜ A fazer |
-| M3 | `README.md` real (hoje é o template do Vite) | 5 | ⬜ A fazer |
-| M4 | Publicação em URL pública | 5 | ⬜ A fazer |
+| M1 | Responsivo 360 / 768 / 1280 | 5 | ✅ Concluído |
+| M2 | Acessibilidade básica (foco, `alt`, contraste, teclado) | 5 | ✅ Concluído |
+| M3 | `README.md` real (hoje é o template do Vite) | 5 | ✅ Concluído |
+| M4 | Publicação em URL pública | 5 | ✅ Concluído |
+| M5 | SEO: canonical, sitemap, JSON-LD, pré-render por rota | 5 | ✅ Concluído |
+| M6 | CI (lint/tsc/testes/build) e deploy automático | 5 | ✅ Concluído |
 
 ### Fora de escopo desta rodada
 
@@ -45,11 +49,11 @@ busca textual · SSR/SEO avançado. Justificativa em `01-requirements.md`.
 
 | Débito | Impacto | Tratamento |
 |---|---|---|
-| `README.md` é o template do Vite | Quem clona não sabe o que é o projeto | Sprint 5 (M3) |
-| `whatsappMessage()` é fixo em português | Loja em inglês manda pedido em português | Decidir em DR-003 |
-| Fotos de produto são retratos de domínio público | Placeholder óbvio numa loja de memorial | Depende de DR-004 |
-| Coluna `slot` sem consumidor no código | Campo morto no schema até se decidir | DR-004 |
-| `App.test.tsx` testa o placeholder | Vira falso positivo quando a Home existir | Sprint 1 (1.6) |
+| Fotos de produto são retratos de domínio público | Placeholder óbvio numa loja de memorial | Trocar por foto real de peça |
+| Coluna `slot` sem consumidor no código | Campo morto no schema | Remover ou usar em uma próxima rodada |
+| `rating`/`reviews` são semeados, não reais | Não podem virar `aggregateRating` no JSON-LD sem virar risco de conformidade | Substituir por avaliação real ou remover da tela |
+| `@supabase/supabase-js` inteiro no bundle | 132 kB gz para usar só select e insert | Trocar por `fetch` no PostgREST se o peso incomodar |
+| GitHub Pages não envia header de resposta | Sem `frame-ancestors` nem HSTS; CSP só pela `<meta>` | `vercel.json` já pronto para migrar quando quiser |
 
 ---
 
@@ -61,27 +65,89 @@ externo — datar em calendário seria inventar precisão que não existe.
 | Sprint | Escopo | Depende de | Estado |
 |---|---|---|---|
 | — | Fundação: scaffold, schema, dados, carrinho | — | ✅ Concluída |
-| **0** | **Destravar DR-001 a DR-004** | **você** | 🔵 **Corrente** |
-| 1 | Roteador, i18n, primitivos, layout, Home | DR-001 | ⬜ |
-| 2 | Catálogo com filtros na query string | Sprint 1 | ⬜ |
-| 3 | Produto, opções, calculadora de m² | Sprint 1 | ⬜ |
-| 4 | Carrinho, formulário, `createOrder` + WhatsApp | DR-002, DR-003 | ⬜ |
-| 5 | Responsivo, acessibilidade, README, publicação | Sprints 1-4 | ⬜ |
+| 0 | Destravar DR-001 a DR-005 | você | ✅ Concluída |
+| 1 | Roteador, i18n, primitivos, layout, Home | DR-001 | ✅ Concluída |
+| 2 | Catálogo com filtros na query string | Sprint 1 | ✅ Concluída |
+| 3 | Produto, opções, calculadora de m² | Sprint 1 | ✅ Concluída |
+| 4 | Carrinho, formulário, `createOrder` + WhatsApp | DR-002, DR-003 | ✅ Concluída |
+| 5 | Responsivo, acessibilidade, SEO, CI/CD, publicação | Sprints 1-4 | ✅ Concluída |
 
-**Caminho crítico:** DR-001 → Sprint 1 → Sprint 2 → Sprint 3 → Sprint 4.
-Sprint 3 pode correr em paralelo à 2 se as duas partirem da Sprint 1 pronta.
+**Próxima rodada** (nada bloqueia a venda hoje)
+
+| Item | Por quê |
+|---|---|
+| `VITE_WHATSAPP_PHONE` com o número real | Hoje o atalho de WhatsApp não aparece; a loja promete ligar |
+| Fotos reais das peças | O catálogo vende memória; retrato genérico enfraquece a peça |
+| Migrar para Vercel ou domínio próprio | Recupera header de resposta (HSTS, `frame-ancestors`) e tira o subcaminho |
 
 **Riscos abertos**
 
 | Risco | Mitigação |
 |---|---|
-| Traduzir 713 linhas de design vira cópia literal de HTML | Tela a tela, primitivos primeiro |
+| Pedido anônimo sem login permite enxurrada de pedido falso | Trigger `throttle_orders`: 5 pedidos por telefone a cada 10 min |
 | Calculadora de m² divergir do preço cobrado | Total real vem do trigger; calculadora é estimativa rotulada |
-| Carrinho persistido guardar produto que saiu do ar | Sanear contra `fetchProducts()` ao carregar |
+| Carrinho persistido guardar produto que saiu do ar | Saneado contra `fetchProducts()` ao carregar |
+| Anúncio reprovado no Mercado Livre por título ou descrição | `ml:export` valida e falha no CI antes de virar anúncio |
 
 ---
 
 ## 3. Changelog
+
+### v1.0.0 — 14/08/2026 — Loja no ar
+
+**Adicionado**
+- Cinco telas: Home, Catálogo, Produto, Carrinho e Pedido, sobre primitivos
+  próprios (`Button`, `Chip`, `Badge`, `Price`, `Feedback`, `Layout`)
+- Catálogo com filtro de categoria, busca e ordenação **na query string** — a
+  URL de um filtro é compartilhável e sobrevive ao recarregar
+- Página de produto com escolha de tamanho, cor e acabamento, peças relacionadas
+  e calculadora de m² que converte área em caixas
+- Carrinho em `localStorage` saneado contra o catálogo vivo, formulário validado
+  e `createOrder` levando para `/pedido/:id` com a referência
+- Migration `0003`: `sku`, `stock`, `slug` e campos de Mercado Livre
+- `npm run ml:export` gera o kit de anúncios em CSV e Markdown, validando título
+  (≤ 60 caracteres), ausência de palavra promocional, emoji e contato externo —
+  o mesmo job roda no CI e reprova o build
+- `npm run seo:sitemap` regenera `sitemap.xml` (12 URLs) e `robots.txt`
+- Pré-render por rota no deploy (`scripts/prerender.ts`): cada `/peca/<slug>`
+  vira um `index.html` real, com `<head>` correto e JSON-LD de `Product`
+- CI (`lint` → `typecheck` → `test` → `build` + validação dos anúncios) e deploy
+  automático para GitHub Pages
+- `README.md` de verdade: stack, scripts, variáveis, banco, fluxo de venda
+
+**Corrigido**
+- Rota profunda respondia 404 no GitHub Pages e matava a indexação — resolvido
+  pelo pré-render
+- `canonical` sem barra final apontava para uma URL que redirecionava, o que o
+  Google trata como erro; barra final padronizada em `siteUrl`, pré-render,
+  sitemap e `vercel.json`
+- A loja abria em inglês conforme o idioma do navegador, conflitando com o
+  `<head>` pré-renderizado em português (e quebrando a busca por "medalhão")
+- Estado vazio (404, carrinho vazio, peça inexistente) não tinha `h1`; `/peca/`
+  com slug inválido herdava o título genérico sem `noindex`
+- Botão dizia só "Adicionar", sem dizer do quê
+- Suíte dependia do `.env` local e quebrava no CI — `.env.test` com valores
+  propositalmente falsos
+
+**Segurança**
+- Provado em produção, não presumido: ler `orders` com a chave publicável → 401;
+  `PATCH`/`DELETE`/`POST` em `products` → 401; schema `public` → 404
+- Adulteração de payload provada inofensiva: mandar `total` explícito → 400;
+  forjar `unit_price` dentro de `items` grava a linha, mas o trigger recalcula o
+  total pelo preço vigente e força `status = 'novo'`
+- Migration `0004`: trigger `throttle_orders` limita 5 pedidos por telefone a
+  cada 10 minutos. A policy de insert é aberta por necessidade — a loja não tem
+  login e o telefone é a única identidade no payload
+- CSP sem `unsafe-inline` em script, via header no `vercel.json` e via `<meta>`
+  no `index.html` (única barreira em host sem controle de header)
+- Nenhum `dangerouslySetInnerHTML`, `innerHTML` ou `eval`; todo `target="_blank"`
+  com `noopener`
+- Linhas de teste e sondagem apagadas: `recordare.orders` voltou a zero
+
+**Acessibilidade e responsivo** — auditado no navegador contra produção
+- Exatamente um `h1` por página · `lang="pt-BR"` · 0 imagem sem `alt` · 0 botão
+  sem nome acessível · 0 input sem rótulo · primeiro Tab cai em "Pular para o
+  conteúdo" · 0 px de overflow horizontal em 360, 768 e 1280
 
 ### v0.1.0 — 13/08/2026 — Fundação
 
@@ -109,15 +175,17 @@ Sprint 3 pode correr em paralelo à 2 se as duas partirem da Sprint 1 pronta.
   recalcula. `orders` aceita insert anônimo, então um total vindo do navegador
   seria um número escolhido por quem quisesse.
 
-**Ainda não existe**
-- Nenhuma tela. `App.tsx` renderiza um `<h1>` com o nome da loja.
+**Ainda não existia nesta versão**
+- Nenhuma tela. `App.tsx` renderizava um `<h1>` com o nome da loja.
 
 ---
 
 ## 4. Como retomar
 
-1. Ler este arquivo e `decisions/` — o que está `⛔` espera decisão, não trabalho.
-2. Rodar o gate para confirmar que a base ainda está verde.
-3. Pegar a próxima sprint em `03-tasks.md` e fazer **uma tela por turno**.
+1. Ler este arquivo e `decisions/` — o escopo da rodada está fechado, o que
+   sobrou está em **Próxima rodada** e em **Débito técnico**.
+2. Rodar o gate: `npm run lint && npm run typecheck && npm run test && npm run build`.
+3. Mexer no banco só por migration nova em `supabase/migrations/`, numerada em
+   sequência — o que está lá já foi aplicado em produção.
 4. Ao terminar: atualizar o backlog e o changelog **aqui**, e só então considerar
-   a sprint entregue.
+   a entrega feita.

@@ -279,10 +279,29 @@ function ProductDetail({ product }: { product: Product }) {
   );
 }
 
+function ProductMissing() {
+  const { t } = useLang();
+  useDocumentMeta({
+    title: `${t('notFoundTitle')} · Recordare`,
+    description: t('notFoundBody'),
+    noindex: true,
+  });
+
+  return (
+    <Container className="py-16">
+      <EmptyState
+        as="h1"
+        title={t('notFoundTitle')}
+        body={t('notFoundBody')}
+        action={<ButtonLink href="/catalogo">{t('backCatalog')}</ButtonLink>}
+      />
+    </Container>
+  );
+}
+
 export function ProductPage() {
   const { slug } = useParams<{ slug: string }>();
   const { products, status, reload } = useCatalog();
-  const { t } = useLang();
 
   if (status === 'loading') {
     return (
@@ -307,18 +326,7 @@ export function ProductPage() {
   }
 
   const product = products.find((item) => item.slug === slug);
-  if (!product) {
-    return (
-      <Container className="py-16">
-        <EmptyState
-          as="h1"
-          title={t('notFoundTitle')}
-          body={t('notFoundBody')}
-          action={<ButtonLink href="/catalogo">{t('backCatalog')}</ButtonLink>}
-        />
-      </Container>
-    );
-  }
+  if (!product) return <ProductMissing />;
 
   return <ProductDetail product={product} />;
 }
