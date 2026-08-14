@@ -23,6 +23,20 @@ describe('navegação', () => {
     expect(screen.getByRole('heading', { name: 'Página não encontrada' })).toBeInTheDocument();
   });
 
+  it('fecha o menu com Esc e devolve o foco para o botão que o abriu', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<App />);
+
+    const abrir = screen.getByRole('button', { name: 'Abrir menu' });
+    await user.click(abrir);
+    expect(document.getElementById('menu-mobile')).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+
+    expect(document.getElementById('menu-mobile')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Abrir menu' })).toHaveFocus();
+  });
+
   it('mostra a peça pelo slug e avisa quando o slug não existe', () => {
     const { unmount } = renderWithProviders(<App />, { route: '/peca/placa-retangular-memoria' });
     expect(

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { useLang } from '../../i18n/lang-context';
 import { useCart } from '../../cart/cart-context';
@@ -69,8 +69,22 @@ export function Header() {
   const { t } = useLang();
   const [location] = useLocation();
   const [open, setOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => setOpen(false), [location]);
+
+  // Esc fecha o menu: quem abriu no teclado precisa de uma saída que não seja caçar o botão.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setOpen(false);
+      // O foco está dentro do menu que vai sumir; sem devolvê-lo o teclado recomeça do topo.
+      toggleRef.current?.focus();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open]);
 
   const links = [
     { href: '/', label: t('navHome') },
@@ -104,6 +118,7 @@ export function Header() {
           </div>
           <CartLink />
           <button
+            ref={toggleRef}
             type="button"
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
