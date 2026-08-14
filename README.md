@@ -13,7 +13,7 @@ Vende em dois canais — o site (pedido registrado no Supabase + atalho de Whats
 | Rotas  | wouter                                                       |
 | Dados  | Supabase (schema `recordare`, RLS default-deny)              |
 | Testes | Vitest 4 + Testing Library + jsdom                           |
-| Deploy | Vercel (SPA rewrite + CSP/HSTS em `vercel.json`)             |
+| Deploy | GitHub Pages (`vercel.json` pronto para migrar, ver Hospedagem) |
 
 ## Rodando local
 
@@ -114,6 +114,23 @@ esconde o atalho e a loja promete ligar.
 
 `npm run ml:export` valida cada anúncio (título ≤ 60 caracteres, sem palavra promocional, sem emoji,
 sem contato externo na descrição) e sai com erro se algo reprovar — o mesmo job roda no CI.
+
+## Hospedagem
+
+Produção hoje é **GitHub Pages** (`https://samuelstefano.github.io/recordare/`), publicada pelo
+workflow `deploy.yml`. O Pages não deixa configurar header de resposta nem reescrita de rota, e isso
+tem duas consequências:
+
+- O CSP viaja numa `<meta http-equiv>` no `index.html`. Meta não aceita `frame-ancestors` nem HSTS,
+  então essas duas proteções **não existem no Pages** — `X-Frame-Options` também é header. As rotas
+  são pré-renderizadas para que cada uma carregue a meta e o `<title>` certos.
+- Sem reescrita, `/pedido/:id` cai no `404.html`: o recibo aparece normalmente depois da hidratação,
+  mas o **status HTTP é 404**. Não atrapalha o cliente e mantém a rota fora do índice, embora suje
+  qualquer monitoração que olhe só o código.
+
+`vercel.json` já traz rewrite de SPA e os headers completos (CSP com `frame-ancestors 'none'`, HSTS,
+`nosniff`, `Referrer-Policy`, `Permissions-Policy`, COOP). Apontar um domínio para a Vercel resolve
+os dois pontos acima sem mexer no código.
 
 ## Segurança
 

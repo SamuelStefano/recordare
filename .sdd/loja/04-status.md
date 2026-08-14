@@ -165,6 +165,15 @@ externo — datar em calendário seria inventar precisão que não existe.
   catálogo, em vez de "tente de novo" num carrinho que falharia sempre
 - CSP sem `unsafe-inline` em script, via header no `vercel.json` e via `<meta>`
   no `index.html` (única barreira em host sem controle de header)
+- `src/security.test.ts` guarda esse CSP: apagar a `<meta>` ou soltar
+  `unsafe-inline` não quebraria nenhuma tela, então nada avisaria até alguém
+  injetar script. O teste também exige que a meta e o header não divirjam — senão
+  o que foi testado no preview não é o que protege em produção — e que o
+  `.env.example` não sugira nenhuma variável fora de `VITE_*`/`STORE_ORIGIN`
+- Hospedagem documentada no README: o GitHub Pages não serve header, então
+  `frame-ancestors` e HSTS **não existem em produção hoje** (meta não suporta
+  nenhum dos dois) e `/pedido/:id` responde 404 embora mostre o recibo. O
+  `vercel.json` já resolve os dois; falta apontar um domínio
 - Nenhum `dangerouslySetInnerHTML`, `innerHTML` ou `eval`; todo `target="_blank"`
   com `noopener`
 - Linhas de teste e sondagem apagadas: `recordare.orders` voltou a zero
