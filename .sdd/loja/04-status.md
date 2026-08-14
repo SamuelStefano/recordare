@@ -49,7 +49,7 @@ busca textual · SSR/SEO avançado. Justificativa em `01-requirements.md`.
 
 | Débito | Impacto | Tratamento |
 |---|---|---|
-| Fotos de produto são retratos de domínio público servidos pelo Wikimedia | Placeholder óbvio numa loja de memorial, e o host devolve 429 quando o navegador pede as 10 de uma vez — no site as imagens aparecem, mas é dependência de terceiro no caminho da venda. Medido em 14/08: 9 das 10 respondem 200 em sequência e a décima volta 429; espaçadas, todas voltam 200. **No Mercado Livre isso é bloqueante**, porque o anúncio é criado com a foto baixada na hora: um 429 vira anúncio sem imagem | Trocar por foto real de peça, hospedada pela própria loja, antes de subir o kit do ML |
+| Fotos de produto são retratos de domínio público servidos pelo Wikimedia | Placeholder óbvio numa loja de memorial, e o host devolve 429 quando o navegador pede as 10 de uma vez — no site as imagens aparecem, mas é dependência de terceiro no caminho da venda. Medido em 14/08: 9 das 10 respondem 200 em sequência e a décima volta 429; espaçadas, todas voltam 200. **No Mercado Livre isso é bloqueante**, porque o anúncio é criado com a foto baixada na hora: um 429 vira anúncio sem imagem | Trocar por foto real de peça, hospedada pela própria loja, antes de subir o kit do ML. O risco maior nem é o 429: a foto é o retrato de uma pessoa real que não tem nada a ver com a peça, e o ML publica a imagem baixada. Desde 14/08 o export marca cada uma com `NÃO PUBLIQUE` e abre o markdown com a contagem, para o aviso não morrer no fim de uma lista de dez linhas iguais |
 | Coluna `slot` sem consumidor no código | Campo morto no schema | Remover ou usar em uma próxima rodada |
 | `rating`/`reviews` são semeados, não reais | Não podem virar `aggregateRating` no JSON-LD sem virar risco de conformidade | Substituir por avaliação real ou remover da tela |
 | `@supabase/supabase-js` inteiro no bundle | 132 kB gz para usar só select e insert | Trocar por `fetch` no PostgREST se o peso incomodar |
@@ -176,6 +176,13 @@ externo — datar em calendário seria inventar precisão que não existe.
   `vercel.json` já resolve os dois; falta apontar um domínio
 - Nenhum `dangerouslySetInnerHTML`, `innerHTML` ou `eval`; todo `target="_blank"`
   com `noopener`
+- Jornada de compra refeita no Firefox além do Chromium, e a corrida real do
+  `PT422` provada em produção: peça desativada **depois** que o carrinho já
+  estava montado devolve 422, a loja mostra "revise o carrinho", recarrega o
+  catálogo e tira a peça morta — com uma peça sobrando ela continua na lista, com
+  nenhuma o carrinho vazio explica o motivo. Nenhum pedido gravado nas tentativas
+- `scripts/` passou a ser typechecado (`tsconfig.scripts.json`): o job que gera o
+  kit do Mercado Livre e reprova o CI não era conferido por `tsc`
 - Linhas de teste e sondagem apagadas: `recordare.orders` voltou a zero
 
 **Acessibilidade e responsivo** — auditado no navegador, em Chromium e Firefox
