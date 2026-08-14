@@ -9,7 +9,9 @@ import { productDescription, productName } from '../src/lib/labels';
 // depender de JavaScript — o corpo continua hidratando no cliente.
 const url = process.env.VITE_SUPABASE_URL;
 const key = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const origin = (process.env.STORE_ORIGIN ?? 'https://recordare.vercel.app').replace(/\/$/, '');
+const origin = (
+  process.env.STORE_ORIGIN ?? 'https://samuelstefano.github.io/recordare'
+).replace(/\/$/, '');
 const dist = join(process.cwd(), 'dist');
 const pt = dictionaries.pt;
 

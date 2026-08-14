@@ -100,9 +100,15 @@ describe('buildKit', () => {
 });
 
 describe('buildListing', () => {
-  it('aponta para a página da peça na loja própria', () => {
+  it('aponta para a página da peça na loja própria, sem redirect no caminho', () => {
     expect(buildListing(medalhao, 'https://recordare.com.br/').storeUrl).toBe(
-      'https://recordare.com.br/peca/medalhao-oval-classico'
+      'https://recordare.com.br/peca/medalhao-oval-classico/'
+    );
+  });
+
+  it('respeita o subcaminho quando a loja não está na raiz do domínio', () => {
+    expect(buildListing(medalhao, 'https://samuelstefano.github.io/recordare').storeUrl).toBe(
+      'https://samuelstefano.github.io/recordare/peca/medalhao-oval-classico/'
     );
   });
 });

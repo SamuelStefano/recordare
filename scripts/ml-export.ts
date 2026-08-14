@@ -7,7 +7,8 @@ import { buildKit, toCsv, toMarkdown } from '../src/lib/mercadolivre';
 // import.meta.env, que só existe no bundle do navegador.
 const url = process.env.VITE_SUPABASE_URL;
 const key = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const storeOrigin = process.env.STORE_ORIGIN ?? 'https://recordare.vercel.app';
+// O padrão aponta para onde a loja realmente está: link morto num anúncio custa a venda.
+const storeOrigin = process.env.STORE_ORIGIN ?? 'https://samuelstefano.github.io/recordare';
 const outDir = join(process.cwd(), 'out', 'mercadolivre');
 
 if (!url || !key) {

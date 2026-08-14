@@ -156,7 +156,8 @@ export function buildListing(product: Product, storeOrigin: string): Listing {
     description: buildDescription(product),
     attributes: buildAttributes(product),
     imageUrl: product.img,
-    storeUrl: `${storeOrigin.replace(/\/$/, '')}/peca/${product.slug}`,
+    // Barra final: a loja serve /peca/<slug>/ e sem ela responde redirect. Anúncio não leva redirect.
+    storeUrl: `${storeOrigin.replace(/\/$/, '')}/peca/${product.slug}/`,
   };
 }
 

@@ -4,7 +4,9 @@ import type { Product } from '../src/lib/catalog';
 
 const url = process.env.VITE_SUPABASE_URL;
 const key = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const origin = (process.env.STORE_ORIGIN ?? 'https://recordare.vercel.app').replace(/\/$/, '');
+const origin = (
+  process.env.STORE_ORIGIN ?? 'https://samuelstefano.github.io/recordare'
+).replace(/\/$/, '');
 const publicDir = join(process.cwd(), 'public');
 
 if (!url || !key) {
