@@ -11,7 +11,8 @@
     "typecheck": "tsc -b --noEmit",
     "preview": "vite preview",
     "ml:export": "tsx --env-file=.env scripts/ml-export.ts",
-    "seo:sitemap": "tsx --env-file=.env scripts/sitemap.ts"
+    "seo:sitemap": "tsx --env-file=.env scripts/sitemap.ts",
+    "prerender": "tsx scripts/prerender.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",
