@@ -4,12 +4,14 @@
   --color-bg: #f7f3ec;
   --color-ink: #1b1a18;
   --color-ink-soft: #4a443b;
-  --color-brand: #9a6a3a;
+  /* brand e faint são os tons mais claros que ainda alcançam 4.5:1 sobre `bg` e `cream`, o mínimo
+     da WCAG AA para texto normal. Os valores originais reprovavam (4.22 e 2.91) e o axe acusava. */
+  --color-brand: #845b31;
   --color-brand-dark: #7e5528;
   --color-line: #e6dfd2;
   --color-line-deep: #dbd1be;
   --color-muted: #6f685d;
-  --color-faint: #9a8e7c;
+  --color-faint: #796e5d;
   --color-sand: #ede6d9;
   --color-sand-deep: #f0e9db;
   --color-stone: #e9e1d2;
@@ -22,7 +24,7 @@
   --color-quote: #33302a;
   --color-night: #141210;
   --color-night-line: #2a2723;
-  --color-night-dim: #6e655a;
+  --color-night-dim: #867b6d;
   --color-onnight: #ede4d4;
   --color-cat-desc: #e4d6c0;
 

@@ -132,9 +132,10 @@ externo — datar em calendário seria inventar precisão que não existe.
 **Segurança**
 - Provado em produção, não presumido: ler `orders` com a chave publicável → 401;
   `PATCH`/`DELETE`/`POST` em `products` → 401; schema `public` → 404
-- Adulteração de payload provada inofensiva: mandar `total` explícito → 400;
-  forjar `unit_price` dentro de `items` grava a linha, mas o trigger recalcula o
-  total pelo preço vigente e força `status = 'novo'`
+- Adulteração de payload provada inofensiva: pedido com `total: 1.00` e
+  `unit_price: 0.5` forjado é **aceito** (201) e gravado com `total = 498.00`, o
+  preço vigente do catálogo, e `status = 'novo'`. O banco não discute o número
+  que o navegador mandou: ele o ignora
 - Migration `0004`: trigger `throttle_orders` limita 5 pedidos por telefone a
   cada 10 minutos. A policy de insert é aberta por necessidade — a loja não tem
   login e o telefone é a única identidade no payload
@@ -144,10 +145,15 @@ externo — datar em calendário seria inventar precisão que não existe.
   com `noopener`
 - Linhas de teste e sondagem apagadas: `recordare.orders` voltou a zero
 
-**Acessibilidade e responsivo** — auditado no navegador contra produção
+**Acessibilidade e responsivo** — auditado no navegador, em Chromium e Firefox
 - Exatamente um `h1` por página · `lang="pt-BR"` · 0 imagem sem `alt` · 0 botão
   sem nome acessível · 0 input sem rótulo · primeiro Tab cai em "Pular para o
   conteúdo" · 0 px de overflow horizontal em 360, 768 e 1280
+- **axe-core (WCAG 2.1 AA): 0 violação** nas quatro telas e em 360 px. Chegou lá
+  corrigindo três tokens que reprovavam no contraste mínimo: `brand` (4,22:1),
+  `faint` (2,91:1) e `night-dim` no rodapé escuro (3,26:1). Os novos valores são
+  os tons mais claros que alcançam 4,5:1, então a identidade da marca e a
+  hierarquia entre `muted` e `faint` continuam de pé
 
 ### v0.1.0 — 13/08/2026 — Fundação
 
