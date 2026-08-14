@@ -79,7 +79,7 @@ const pages: Page[] = [
         priceCurrency: 'BRL',
         availability:
           product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-        url: `${origin}/peca/${product.slug}`,
+        url: `${origin}/peca/${product.slug}/`,
       },
     },
   })),
@@ -88,7 +88,7 @@ const pages: Page[] = [
 const template = await readFile(join(dist, 'index.html'), 'utf8');
 
 function render(page: Page) {
-  const canonical = `${origin}${page.path === '/' ? '/' : page.path}`;
+  const canonical = `${origin}${page.path === '/' ? '/' : `${page.path}/`}`;
   const head = [
     `<meta name="description" content="${escape(page.description)}" />`,
     `<meta property="og:title" content="${escape(page.title)}" />`,

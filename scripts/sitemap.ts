@@ -21,8 +21,9 @@ if (!response.ok) {
 const products = (await response.json()) as Pick<Product, 'slug'>[];
 
 const today = new Date().toISOString().slice(0, 10);
+// Barra final obrigatória: precisa casar com o canonical das páginas pré-renderizadas.
 const entry = (path: string, priority: string) =>
-  `  <url>\n    <loc>${origin}${path}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${priority}</priority>\n  </url>`;
+  `  <url>\n    <loc>${origin}${path === '/' ? '/' : `${path}/`}</loc>\n    <lastmod>${today}</lastmod>\n    <priority>${priority}</priority>\n  </url>`;
 
 const sitemap = [
   '<?xml version="1.0" encoding="UTF-8"?>',
