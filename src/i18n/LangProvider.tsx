@@ -11,7 +11,9 @@ function initialLang(): Lang {
   } catch {
     // Navegador com storage bloqueado ainda precisa abrir a loja.
   }
-  return typeof navigator !== 'undefined' && navigator.language.startsWith('en') ? 'en' : 'pt';
+  // A loja vende em real, para o Brasil, e as páginas são pré-renderizadas em português.
+  // Seguir o idioma do navegador deixaria o <head> estático em conflito com o texto na tela.
+  return 'pt';
 }
 
 export function LangProvider({ children }: { children: ReactNode }) {
