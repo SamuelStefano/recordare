@@ -97,6 +97,19 @@ describe('buildKit', () => {
   it('não reclama de catálogo saudável', () => {
     expect(buildKit([medalhao], STORE).issues).toEqual([]);
   });
+
+  it('avisa sem reprovar quando a foto mora fora da loja', () => {
+    const kit = buildKit([makeProduct({ sku: 'X6', img: 'https://terceiro.test/p.jpg' })], STORE);
+    expect(kit.issues).toEqual([]);
+    expect(kit.warnings).toEqual([
+      expect.objectContaining({ sku: 'X6', field: 'image' }),
+    ]);
+  });
+
+  it('cala quando a foto é servida pela própria loja', () => {
+    const kit = buildKit([makeProduct({ sku: 'X7', img: `${STORE}/fotos/p.jpg` })], STORE);
+    expect(kit.warnings).toEqual([]);
+  });
 });
 
 describe('buildListing', () => {

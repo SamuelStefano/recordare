@@ -59,6 +59,7 @@ export interface ListingIssue {
 export interface ListingKit {
   listings: Listing[];
   issues: ListingIssue[];
+  warnings: ListingIssue[];
 }
 
 // Padrão exigido pelo ML: Produto + Marca + Modelo + Especificação, sem promo.
@@ -161,17 +162,36 @@ export function buildListing(product: Product, storeOrigin: string): Listing {
   };
 }
 
+// O Mercado Livre baixa a foto na hora de criar o anúncio. Como o host de terceiro já devolveu 429
+// quando as peças foram pedidas em rajada, um anúncio pode nascer sem imagem — e anúncio sem foto
+// não vende. Avisa em vez de reprovar: bloquear pararia o kit inteiro por um risco que só existe
+// na publicação.
+function checkImageHost(listing: Listing, storeOrigin: string): ListingIssue[] {
+  if (listing.imageUrl.startsWith(storeOrigin.replace(/\/$/, ''))) return [];
+  return [
+    {
+      sku: listing.sku,
+      field: 'image',
+      message: `Foto hospedada fora da loja (${new URL(listing.imageUrl).host}) — se responder 429 o anúncio sobe sem imagem`,
+    },
+  ];
+}
+
 export function buildKit(products: Product[], storeOrigin: string): ListingKit {
   const listings: Listing[] = [];
   const issues: ListingIssue[] = [];
+  const warnings: ListingIssue[] = [];
 
   for (const product of products) {
     const listing = buildListing(product, storeOrigin);
     listings.push(listing);
     issues.push(...checkListing(listing, product));
+    if (/^https:\/\//.test(listing.imageUrl)) {
+      warnings.push(...checkImageHost(listing, storeOrigin));
+    }
   }
 
-  return { listings, issues };
+  return { listings, issues, warnings };
 }
 
 function csvCell(value: string | number): string {
@@ -223,6 +243,14 @@ export function toCsv(listings: Listing[]): string {
 
 export function toMarkdown(kit: ListingKit): string {
   const lines = ['# Anúncios Recordare — Mercado Livre', ''];
+
+  if (kit.warnings.length) {
+    lines.push('## Avisos', '');
+    for (const warning of kit.warnings) {
+      lines.push(`- \`${warning.sku}\` · **${warning.field}** — ${warning.message}`);
+    }
+    lines.push('');
+  }
 
   if (kit.issues.length) {
     lines.push('## Pendências antes de publicar', '');

@@ -37,6 +37,13 @@ await writeFile(join(outDir, 'anuncios.md'), toMarkdown(kit), 'utf8');
 
 console.log(`${kit.listings.length} anúncios gerados em out/mercadolivre/`);
 
+if (kit.warnings.length > 0) {
+  console.warn(`\n${kit.warnings.length} aviso(s):`);
+  for (const warning of kit.warnings) {
+    console.warn(`  ${warning.sku} · ${warning.field}: ${warning.message}`);
+  }
+}
+
 if (kit.issues.length > 0) {
   console.error(`\n${kit.issues.length} pendência(s) antes de publicar:`);
   for (const issue of kit.issues) console.error(`  ${issue.sku} · ${issue.field}: ${issue.message}`);

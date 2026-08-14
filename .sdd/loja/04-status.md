@@ -49,7 +49,7 @@ busca textual · SSR/SEO avançado. Justificativa em `01-requirements.md`.
 
 | Débito | Impacto | Tratamento |
 |---|---|---|
-| Fotos de produto são retratos de domínio público servidos pelo Wikimedia | Placeholder óbvio numa loja de memorial, e o host devolve 429 quando o navegador pede as 10 de uma vez — no site as imagens aparecem, mas é dependência de terceiro no caminho da venda | Trocar por foto real de peça, hospedada pela própria loja |
+| Fotos de produto são retratos de domínio público servidos pelo Wikimedia | Placeholder óbvio numa loja de memorial, e o host devolve 429 quando o navegador pede as 10 de uma vez — no site as imagens aparecem, mas é dependência de terceiro no caminho da venda. Medido em 14/08: 9 das 10 respondem 200 em sequência e a décima volta 429; espaçadas, todas voltam 200. **No Mercado Livre isso é bloqueante**, porque o anúncio é criado com a foto baixada na hora: um 429 vira anúncio sem imagem | Trocar por foto real de peça, hospedada pela própria loja, antes de subir o kit do ML |
 | Coluna `slot` sem consumidor no código | Campo morto no schema | Remover ou usar em uma próxima rodada |
 | `rating`/`reviews` são semeados, não reais | Não podem virar `aggregateRating` no JSON-LD sem virar risco de conformidade | Substituir por avaliação real ou remover da tela |
 | `@supabase/supabase-js` inteiro no bundle | 132 kB gz para usar só select e insert | Trocar por `fetch` no PostgREST se o peso incomodar |
