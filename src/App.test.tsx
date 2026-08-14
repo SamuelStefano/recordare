@@ -158,6 +158,27 @@ describe('carrinho', () => {
     ).toBeInTheDocument();
   });
 
+  // O caso pior é o carrinho zerar inteiro: sem o aviso o cliente acha que a loja perdeu a escolha
+  // dele e vai embora, e o texto de "sem resultado de filtro" não explica nada aqui.
+  it('explica o carrinho vazio quando a única peça saiu do catálogo', () => {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify([{ id: 'peca-morta', qty: 1 }]));
+
+    renderWithProviders(<App />, { route: '/carrinho' });
+
+    expect(screen.getByRole('heading', { name: 'Seu carrinho está vazio' })).toBeInTheDocument();
+    expect(
+      screen.getByText('Uma peça saiu do catálogo e foi removida do seu carrinho.')
+    ).toBeInTheDocument();
+  });
+
+  it('convida para o catálogo quando o carrinho nunca teve peça', () => {
+    renderWithProviders(<App />, { route: '/carrinho' });
+
+    expect(
+      screen.getByText('Escolha uma peça no catálogo para começar a montar sua homenagem.')
+    ).toBeInTheDocument();
+  });
+
   it('mostra frete grátis a partir do piso', async () => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify([{ id: 'p1', qty: 2 }]));
     renderWithProviders(<App />, { route: '/carrinho' });

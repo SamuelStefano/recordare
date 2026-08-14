@@ -143,13 +143,15 @@ export function CartPage() {
     }
   }
 
+  // Carrinho que esvazia porque a peça saiu do ar parece bug da loja: o cliente escolheu, voltou e
+  // não achou nada. O aviso precisa sobreviver ao estado vazio, senão ele vai embora sem entender.
   if (items.length === 0) {
     return (
       <Container wide={false} className="py-16">
         <EmptyState
           as="h1"
           title={t('cartEmpty')}
-          body={t('emptyBody')}
+          body={dropped ? t('cartDropped') : t('cartEmptyBody')}
           action={<ButtonLink href="/catalogo">{t('cartBrowse')}</ButtonLink>}
         />
       </Container>
