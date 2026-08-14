@@ -63,6 +63,9 @@ export interface OrderInput {
 /** Pedido barrado pelo freio anti-enxurrada. Insistir agora falha de novo; a tela precisa saber. */
 export class OrderRateLimitError extends Error {}
 
+/** O banco recusou uma linha do carrinho. Reenviar o mesmo carrinho falha igual: tem que revisar. */
+export class OrderStaleCartError extends Error {}
+
 // O id sai daqui em vez de vir do banco porque `orders` não tem policy de SELECT: um
 // `insert().select()` voltaria vazio. Gerando o uuid no cliente, a tela de confirmação
 // mostra o número do pedido sem que a loja precise abrir leitura de pedidos ao anônimo.
@@ -73,6 +76,7 @@ export async function createOrder(order: OrderInput): Promise<string> {
   const { error } = await supabase.from('orders').insert({ ...order, id });
   if (error) {
     if (error.code === 'PT429') throw new OrderRateLimitError(error.message);
+    if (error.code === 'PT422') throw new OrderStaleCartError(error.message);
     throw new Error(error.message);
   }
   return id;

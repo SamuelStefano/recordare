@@ -153,6 +153,16 @@ externo — datar em calendário seria inventar precisão que não existe.
   tela distingue freio de falha de rede e pede para aguardar, sem perder o
   carrinho. Provado em produção: 5 pedidos passam, o 6º é barrado com a mensagem
   certa e o carrinho continua guardado
+- Migration `0006`: `items` passou a ser validado no banco — cada linha tem que apontar
+  para peça ativa com quantidade inteira de 1 a 99, e o que não bate volta `PT422`.
+  Falando direto com a API dava para gravar pedido de peça inexistente e de 9999
+  unidades; o total já ignorava essas linhas, mas o lixo entrava na única fila de
+  pedidos que existe. O trigger se chama `check_order_items` de propósito: o Postgres
+  dispara em ordem alfabética e `set_order_total` convertia `qty` para inteiro antes,
+  transformando um `qty: "abc"` em erro cru de sintaxe. Provado em produção — item
+  inexistente, quantidade 9999, negativa, fracionária, ausente e em texto voltam 422; o
+  pedido honesto grava. Do lado da loja o 422 vira "revise o carrinho" com recarga do
+  catálogo, em vez de "tente de novo" num carrinho que falharia sempre
 - CSP sem `unsafe-inline` em script, via header no `vercel.json` e via `<meta>`
   no `index.html` (única barreira em host sem controle de header)
 - Nenhum `dangerouslySetInnerHTML`, `innerHTML` ou `eval`; todo `target="_blank"`

@@ -10,7 +10,12 @@ import { ProductImage } from '../components/ui/ProductImage';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { useLang } from '../i18n/lang-context';
 import { FREE_SHIPPING_FROM, MAX_QTY, cartTotal, shippingFor } from '../lib/cart';
-import { OrderRateLimitError, createOrder, type CartItem } from '../lib/catalog';
+import {
+  OrderRateLimitError,
+  OrderStaleCartError,
+  createOrder,
+  type CartItem,
+} from '../lib/catalog';
 import { money } from '../lib/format';
 import { productName, variantLabel } from '../lib/labels';
 import { MAX_NOTE, hasErrors, saveReceipt, validateOrder, type OrderErrors } from '../lib/order';
@@ -100,11 +105,11 @@ export function CartPage() {
   const { t } = useLang();
   const [, navigate] = useLocation();
   const { items, clear, dropped, dismissDropped } = useCart();
-  const { products } = useCatalog();
+  const { products, reload } = useCatalog();
 
   const [draft, setDraft] = useState({ customer: '', phone: '', note: '' });
   const [errors, setErrors] = useState<OrderErrors>({});
-  const [failure, setFailure] = useState<'errSubmit' | 'errTooMany' | null>(null);
+  const [failure, setFailure] = useState<'errSubmit' | 'errTooMany' | 'errStale' | null>(null);
   const [sending, setSending] = useState(false);
 
   useDocumentMeta({
@@ -137,7 +142,14 @@ export function CartPage() {
       clear();
       navigate(`/pedido/${id}`);
     } catch (cause) {
-      setFailure(cause instanceof OrderRateLimitError ? 'errTooMany' : 'errSubmit');
+      if (cause instanceof OrderStaleCartError) {
+        setFailure('errStale');
+        // Recarrega o catálogo para que o saneamento tire a peça morta do carrinho: sem isso o
+        // cliente reenviaria o mesmo carrinho e tomaria o mesmo erro.
+        reload();
+      } else {
+        setFailure(cause instanceof OrderRateLimitError ? 'errTooMany' : 'errSubmit');
+      }
     } finally {
       setSending(false);
     }

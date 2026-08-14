@@ -56,6 +56,9 @@ Migrations em `supabase/migrations/`, aplicadas em ordem no schema `recordare`.
 - O `total` do pedido nunca vem do cliente — um trigger recalcula a partir do preço vigente em
   `products`, então mexer no payload não muda o valor gravado. É o total das peças; frete é
   confirmado no atendimento.
+- Cada linha de `items` precisa apontar para peça ativa com quantidade inteira de 1 a 99
+  (`check_order_items`). Sem isso dava para gravar, falando direto com a API, um pedido de peça
+  inexistente ou de 9999 unidades — não vira dinheiro, mas suja a única fila de pedidos que existe.
 
 ## Fluxo de venda
 
@@ -67,6 +70,9 @@ Migrations em `supabase/migrations/`, aplicadas em ordem no schema `recordare`.
 4. Um telefone só consegue registrar 5 pedidos a cada 10 minutos (trigger `throttle_orders`). O
    sexto volta como `PT429` e a loja pede para aguardar em vez de mandar tentar de novo — insistir
    falharia pelos próximos minutos.
+5. Se uma peça sair do catálogo entre montar o carrinho e enviar, o banco recusa com `PT422` e a
+   loja recarrega o catálogo e pede para revisar a lista. Mandar "tente de novo" jogaria o cliente
+   num laço, porque o mesmo carrinho falharia sempre.
 
 ### Onde ver os pedidos — leia antes de anunciar
 

@@ -117,6 +117,8 @@ const pt = {
   errSubmit: 'Não conseguimos registrar seu pedido. Seu carrinho está intacto — tente de novo.',
   errTooMany:
     'Já recebemos vários pedidos deste telefone agora há pouco. Seu carrinho continua guardado: aguarde alguns minutos antes de enviar de novo.',
+  errStale:
+    'Uma peça do seu carrinho saiu do catálogo. Revisamos a lista para você — confira e envie de novo.',
   errEmptyCart: 'Seu carrinho está vazio.',
 
   orderTitle: 'Pedido recebido',
@@ -276,6 +278,8 @@ const en: Record<TranslationKey, string> = {
   errSubmit: 'We could not register your order. Your cart is intact — please try again.',
   errTooMany:
     'We already received several orders from this phone number a moment ago. Your cart is still saved — please wait a few minutes before sending again.',
+  errStale:
+    'A piece in your cart left the catalog. We refreshed the list for you — review it and send again.',
   errEmptyCart: 'Your cart is empty.',
 
   orderTitle: 'Order received',
