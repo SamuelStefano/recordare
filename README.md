@@ -60,9 +60,49 @@ Migrations em `supabase/migrations/`, aplicadas em ordem no schema `recordare`.
 ## Fluxo de venda
 
 1. Carrinho em `localStorage`, saneado contra o catálogo vivo (item fora do ar sai e o cliente é avisado).
-2. Checkout grava `orders` + `order_items` e leva para `/pedido/:id` com a referência.
+2. Checkout grava uma linha em `orders`, com as peças em `items jsonb`, e leva para `/pedido/:id`
+   com a referência.
 3. O link de WhatsApp é **atalho, não pedido**: se o telefone não estiver configurado a loja avisa que
    vai ligar. Nenhuma configuração ausente pode custar uma venda.
+4. Um telefone só consegue registrar 5 pedidos a cada 10 minutos (trigger `throttle_orders`). O
+   sexto volta como `PT429` e a loja pede para aguardar em vez de mandar tentar de novo — insistir
+   falharia pelos próximos minutos.
+
+### Onde ver os pedidos — leia antes de anunciar
+
+**A loja não avisa ninguém quando um pedido chega.** Não há e-mail, push nem mensagem: o pedido é
+gravado em `recordare.orders` e fica lá. Por desenho, a chave publicável **não lê** `orders` — é o
+que impede um estranho de ler o pedido alheio —, então não existe painel no site.
+
+Hoje o único jeito de ver é o painel do Supabase: **Table Editor → schema `recordare` → `orders`**,
+ordenado por `created_at`. Enquanto não houver notificação, alguém precisa abrir isso todo dia útil,
+senão a promessa de "entraremos em contato" fica sem dono.
+
+Caminhos para fechar esse buraco, do mais barato ao mais completo:
+
+| Caminho | O que dá | Custo |
+|---|---|---|
+| **Preencher `VITE_WHATSAPP_PHONE`** com o número real | Depois de confirmar, o cliente é convidado a mandar o pedido pronto no WhatsApp — o pedido chega no celular sozinho | Uma variável de repositório |
+| Database Webhook do Supabase em `orders` → n8n/Zapier → WhatsApp ou e-mail | Aviso na hora, mesmo se o cliente não mandar a mensagem | Configuração no painel, sem código |
+| Edge Function no insert mandando e-mail (Resend) | Aviso na hora, sem terceiro | Uma função + uma chave |
+| Rotina de conferir o painel | Zero | Depende de disciplina humana |
+
+A primeira linha depende do cliente clicar, então não substitui as outras — mas é o que transforma
+"ninguém foi avisado" em "quase sempre alguém foi avisado" ao custo de uma variável. Com o número
+preenchido a confirmação mostra um link `wa.me` com a mensagem já escrita:
+
+```
+Olá Maria da Silva,
+
+Pedido:
+- Medalhão Oval Clássico (1x) [18x24 · Branco · Fosco]
+
+Total: R$ 249,00
+Referência: B6C7CC41
+```
+
+Número inválido não vira link quebrado: `whatsappLink` exige de 10 a 15 dígitos e, se não bater,
+esconde o atalho e a loja promete ligar.
 
 ## Mercado Livre
 

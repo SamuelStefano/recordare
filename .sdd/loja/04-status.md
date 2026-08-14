@@ -6,7 +6,7 @@
 **Última atualização:** 2026-08-14
 **Versão atual:** v1.0.0 (loja no ar)
 **Sprint corrente:** nenhuma — escopo da rodada entregue
-**Gate:** verde (tsc limpo · oxlint silencioso · 84 testes · build em 339 ms · bundle 458 kB / 132 kB gz)
+**Gate:** verde (tsc limpo · oxlint silencioso · 89 testes · build em 264 ms · bundle 459 kB / 132 kB gz)
 **Produção:** https://samuelstefano.github.io/recordare/
 
 ---
@@ -49,7 +49,7 @@ busca textual · SSR/SEO avançado. Justificativa em `01-requirements.md`.
 
 | Débito | Impacto | Tratamento |
 |---|---|---|
-| Fotos de produto são retratos de domínio público | Placeholder óbvio numa loja de memorial | Trocar por foto real de peça |
+| Fotos de produto são retratos de domínio público servidos pelo Wikimedia | Placeholder óbvio numa loja de memorial, e o host devolve 429 quando o navegador pede as 10 de uma vez — no site as imagens aparecem, mas é dependência de terceiro no caminho da venda | Trocar por foto real de peça, hospedada pela própria loja |
 | Coluna `slot` sem consumidor no código | Campo morto no schema | Remover ou usar em uma próxima rodada |
 | `rating`/`reviews` são semeados, não reais | Não podem virar `aggregateRating` no JSON-LD sem virar risco de conformidade | Substituir por avaliação real ou remover da tela |
 | `@supabase/supabase-js` inteiro no bundle | 132 kB gz para usar só select e insert | Trocar por `fetch` no PostgREST se o peso incomodar |
@@ -76,7 +76,8 @@ externo — datar em calendário seria inventar precisão que não existe.
 
 | Item | Por quê |
 |---|---|
-| `VITE_WHATSAPP_PHONE` com o número real | Hoje o atalho de WhatsApp não aparece; a loja promete ligar |
+| `VITE_WHATSAPP_PHONE` com o número real | **É o item mais urgente.** A loja recebe pedido e não avisa ninguém: sem `select` em `orders` não há painel no site, então hoje o pedido só aparece para quem abrir o Supabase. Com o número preenchido, a confirmação convida o cliente a mandar o pedido pronto no WhatsApp e ele chega no celular sozinho. Caminho provado em build local; ver README |
+| Notificação que não dependa do cliente clicar | Database Webhook em `orders` ou Edge Function no insert. O atalho de WhatsApp cobre a maioria, não todos |
 | Fotos reais das peças | O catálogo vende memória; retrato genérico enfraquece a peça |
 | Migrar para Vercel ou domínio próprio | Recupera header de resposta (HSTS, `frame-ancestors`) e tira o subcaminho |
 
@@ -113,9 +114,16 @@ externo — datar em calendário seria inventar precisão que não existe.
   vira um `index.html` real, com `<head>` correto e JSON-LD de `Product`
 - CI (`lint` → `typecheck` → `test` → `build` + validação dos anúncios) e deploy
   automático para GitHub Pages
-- `README.md` de verdade: stack, scripts, variáveis, banco, fluxo de venda
+- `README.md` de verdade: stack, scripts, variáveis, banco, fluxo de venda, e
+  onde ver os pedidos que chegam
+- Card de compartilhamento próprio (`public/og.png`, 1200×630) para as telas que
+  não são de uma peça. A venda circula por WhatsApp e link sem imagem some no
+  meio da conversa; a peça continua usando a própria foto
 
 **Corrigido**
+- `link_loja` dos anúncios apontava para `recordare.vercel.app`, que não existe,
+  e sem barra final — anúncio com link morto ou com redirect. Corrigido o padrão
+  nos três scripts e provado: os 10 links respondem 200 em produção
 - Rota profunda respondia 404 no GitHub Pages e matava a indexação — resolvido
   pelo pré-render
 - `canonical` sem barra final apontava para uma URL que redirecionava, o que o
@@ -139,6 +147,12 @@ externo — datar em calendário seria inventar precisão que não existe.
 - Migration `0004`: trigger `throttle_orders` limita 5 pedidos por telefone a
   cada 10 minutos. A policy de insert é aberta por necessidade — a loja não tem
   login e o telefone é a única identidade no payload
+- Migration `0005`: o freio passou a subir `PT429`, que o PostgREST traduz para
+  HTTP 429. Antes ele virava erro genérico e a loja mandava "tente de novo" —
+  conselho errado, porque tentar de novo falha pelos próximos 10 minutos. Agora a
+  tela distingue freio de falha de rede e pede para aguardar, sem perder o
+  carrinho. Provado em produção: 5 pedidos passam, o 6º é barrado com a mensagem
+  certa e o carrinho continua guardado
 - CSP sem `unsafe-inline` em script, via header no `vercel.json` e via `<meta>`
   no `index.html` (única barreira em host sem controle de header)
 - Nenhum `dangerouslySetInnerHTML`, `innerHTML` ou `eval`; todo `target="_blank"`
@@ -148,7 +162,15 @@ externo — datar em calendário seria inventar precisão que não existe.
 **Acessibilidade e responsivo** — auditado no navegador, em Chromium e Firefox
 - Exatamente um `h1` por página · `lang="pt-BR"` · 0 imagem sem `alt` · 0 botão
   sem nome acessível · 0 input sem rótulo · primeiro Tab cai em "Pular para o
-  conteúdo" · 0 px de overflow horizontal em 360, 768 e 1280
+  conteúdo" · 0 px de overflow horizontal em 320, 360, 768 e 1280 (320 px é o
+  piso da WCAG 1.4.10, equivalente a 1280 px com zoom de 400%)
+- Jornada inteira percorrida só com teclado em produção: chegar na peça, escolher
+  variante, adicionar (o leitor de tela ouve "Adicionado ✓"), preencher o
+  formulário e ser barrado por telefone curto. `Esc` fecha o menu do celular e
+  devolve o foco ao botão que o abriu
+- Todo alvo de toque com no mínimo 24 px (WCAG 2.2, 2.5.8): os links do rodapé e
+  o "Ver tudo" passavam só pela exceção de espaçamento, o que é apertado demais
+  para o público desta loja
 - **axe-core (WCAG 2.1 AA): 0 violação** nas quatro telas e em 360 px. Chegou lá
   corrigindo três tokens que reprovavam no contraste mínimo: `brand` (4,22:1),
   `faint` (2,91:1) e `night-dim` no rodapé escuro (3,26:1). Os novos valores são
