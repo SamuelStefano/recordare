@@ -82,7 +82,10 @@ function Featured() {
         title={t('featTitle')}
         sub={t('featSub')}
         action={
-          <Link href="/catalogo" className="text-[12.5px] tracking-[.08em] text-brand uppercase hover:text-brand-dark">
+          <Link
+            href="/catalogo"
+            className="inline-flex min-h-6 items-center text-[12.5px] tracking-[.08em] text-brand uppercase hover:text-brand-dark"
+          >
             {t('viewAll')} →
           </Link>
         }

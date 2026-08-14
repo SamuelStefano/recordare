@@ -30,12 +30,12 @@ export function Footer() {
           <h2 id="foot-shop" className="text-[10.5px] font-semibold tracking-[.22em] uppercase">
             {t('footShop')}
           </h2>
-          <ul className="mt-4 flex flex-col gap-2.5">
+          <ul className="mt-4 flex flex-col gap-1">
             {CATEGORIES.map((cat) => (
               <li key={cat}>
                 <Link
                   href={`/catalogo?cat=${cat}`}
-                  className="text-[13.5px] text-night-dim transition-colors duration-200 hover:text-onnight"
+                  className="inline-flex min-h-6 items-center text-[13.5px] text-night-dim transition-colors duration-200 hover:text-onnight"
                 >
                   {categoryLabel(cat, lang)}
                 </Link>
@@ -48,11 +48,11 @@ export function Footer() {
           <h2 id="foot-help" className="text-[10.5px] font-semibold tracking-[.22em] uppercase">
             {t('footHelp')}
           </h2>
-          <ul className="mt-4 flex flex-col gap-2.5">
+          <ul className="mt-4 flex flex-col gap-1">
             <li>
               <Link
                 href="/catalogo"
-                className="text-[13.5px] text-night-dim transition-colors duration-200 hover:text-onnight"
+                className="inline-flex min-h-6 items-center text-[13.5px] text-night-dim transition-colors duration-200 hover:text-onnight"
               >
                 {t('navCatalog')}
               </Link>
@@ -60,7 +60,7 @@ export function Footer() {
             <li>
               <Link
                 href="/carrinho"
-                className="text-[13.5px] text-night-dim transition-colors duration-200 hover:text-onnight"
+                className="inline-flex min-h-6 items-center text-[13.5px] text-night-dim transition-colors duration-200 hover:text-onnight"
               >
                 {t('cartTitle')}
               </Link>
