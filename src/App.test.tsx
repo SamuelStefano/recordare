@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
-import { renderWithProviders } from './test/render';
+import { renderWithProviders, testProducts } from './test/render';
 import { CART_STORAGE_KEY } from './cart/CartProvider';
 
 beforeEach(() => {
@@ -106,6 +106,19 @@ describe('catálogo', () => {
     const aside = screen.getByRole('complementary', { name: 'Filtros' });
     await user.click(within(aside).getByRole('button', { name: 'Limpar filtros' }));
     await waitFor(() => expect(screen.getByText('3 resultados')).toBeInTheDocument());
+  });
+
+  // Botão só apagado não diz nada: o cliente fica achando que a loja quebrou em vez de entender
+  // que a peça acabou.
+  it('diz que a peça está esgotada em vez de só apagar o botão', () => {
+    const esgotada = testProducts.map((p) => (p.id === 'p1' ? { ...p, stock: 0 } : p));
+    renderWithProviders(<App />, {
+      route: '/peca/medalhao-oval-classico',
+      products: esgotada,
+    });
+
+    const botao = screen.getByRole('button', { name: 'Esgotado' });
+    expect(botao).toBeDisabled();
   });
 });
 

@@ -231,7 +231,7 @@ function ProductDetail({ product }: { product: Product }) {
                 setJustAdded(true);
               }}
             >
-              {justAdded ? t('added') : t('addCart')}
+              {soldOut ? t('soldOut') : justAdded ? t('added') : t('addCart')}
             </Button>
             {product.ml_permalink && (
               <a
