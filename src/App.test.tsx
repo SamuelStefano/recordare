@@ -82,7 +82,7 @@ describe('carrinho', () => {
     renderWithProviders(<App />, { route: '/peca/medalhao-oval-classico' });
 
     await user.click(screen.getByRole('button', { name: '18x24' }));
-    await user.click(screen.getByRole('button', { name: 'Adicionar' }));
+    await user.click(screen.getByRole('button', { name: 'Adicionar ao carrinho' }));
 
     await user.click(screen.getByRole('link', { name: /Abrir carrinho/ }));
 
@@ -95,7 +95,7 @@ describe('carrinho', () => {
     const user = userEvent.setup();
     renderWithProviders(<App />, { route: '/peca/medalhao-oval-classico' });
 
-    await user.click(screen.getByRole('button', { name: 'Adicionar' }));
+    await user.click(screen.getByRole('button', { name: 'Adicionar ao carrinho' }));
     await user.click(screen.getByRole('link', { name: /Abrir carrinho/ }));
 
     await user.click(screen.getByRole('button', { name: 'Aumentar quantidade' }));

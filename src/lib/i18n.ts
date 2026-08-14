@@ -66,7 +66,7 @@ const pt = {
   chooseSize: 'Tamanho',
   chooseFinish: 'Acabamento',
   chooseColor: 'Cor',
-  addCart: 'Adicionar',
+  addCart: 'Adicionar ao carrinho',
   added: 'Adicionado ✓',
   pDesc: 'Descrição',
   pRelated: 'Você também pode gostar',
