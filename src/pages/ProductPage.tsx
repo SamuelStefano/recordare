@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'wouter';
 import { useCart } from '../cart/cart-context';
 import { useCatalog } from '../catalog/catalog-context';
+import { PhotoGuide } from '../components/product/PhotoGuide';
 import { ProductCard } from '../components/product/ProductCard';
 import { Badge } from '../components/ui/Badge';
 import { Button, ButtonLink } from '../components/ui/Button';
@@ -262,6 +263,8 @@ function ProductDetail({ product }: { product: Product }) {
           {product.unit === 'm2' && <AreaCalculator product={product} size={size} />}
         </div>
       </div>
+
+      <PhotoGuide />
 
       {related.length > 0 && (
         <section className="mt-24">

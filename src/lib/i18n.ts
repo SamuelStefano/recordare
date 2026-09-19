@@ -135,6 +135,23 @@ const pt = {
   orderMsgTotal: 'Total',
   orderMsgRef: 'Referência',
 
+  photoTitle: 'A foto da homenagem',
+  photoIntro:
+    'Você não precisa enviar a foto agora. Depois do pedido, nossa equipe entra em contato pelo WhatsApp e recebe a imagem por lá.',
+  photoTip1:
+    'Envie o arquivo original, na maior resolução que tiver. Foto de papel serve, desde que nítida e fotografada sem reflexo.',
+  photoTip2:
+    'Rosto bem visível e iluminado: o tratamento recupera arranhão, mancha e fundo, mas não inventa detalhe que a imagem não tem.',
+  photoTip3:
+    'O tratamento digital é sem custo e você aprova a arte final antes de a peça ir ao forno.',
+  photoLead: 'Prazo de produção e entrega confirmado no atendimento, antes de começarmos a peça.',
+  photoCartHint: 'Não precisa enviar a foto agora — pedimos a imagem no atendimento.',
+
+  orderNextTitle: 'O que acontece agora',
+  orderNext1: 'Seu pedido está registrado e na nossa fila de atendimento.',
+  orderNext2: 'Entramos em contato para receber a foto e confirmar nomes, datas e prazo.',
+  orderNext3: 'Você aprova a arte final e só então a peça vai ao forno.',
+
   loading: 'Carregando…',
   errorTitle: 'Não foi possível carregar o catálogo',
   errorBody: 'Verifique sua conexão. Se o problema continuar, tente novamente em instantes.',
@@ -298,6 +315,23 @@ const en: Record<TranslationKey, string> = {
   orderMsgOrder: 'Order',
   orderMsgTotal: 'Total',
   orderMsgRef: 'Reference',
+
+  photoTitle: 'The photo for your tribute',
+  photoIntro:
+    'You do not need to send the photo now. After the order, our team gets in touch on WhatsApp and receives the image there.',
+  photoTip1:
+    'Send the original file at the highest resolution you have. A printed photo works, as long as it is sharp and shot without glare.',
+  photoTip2:
+    'Face clearly visible and well lit: retouching recovers scratches, stains and background, but cannot invent detail the image does not hold.',
+  photoTip3:
+    'Retouching is free of charge, and you approve the final artwork before the piece goes into the kiln.',
+  photoLead: 'Production and delivery times are confirmed during service, before we start the piece.',
+  photoCartHint: 'No need to send the photo now — we ask for the image during service.',
+
+  orderNextTitle: 'What happens next',
+  orderNext1: 'Your order is registered and in our service queue.',
+  orderNext2: 'We reach out to receive the photo and confirm names, dates and lead time.',
+  orderNext3: 'You approve the final artwork, and only then does the piece go into the kiln.',
 
   loading: 'Loading…',
   errorTitle: 'We could not load the catalog',

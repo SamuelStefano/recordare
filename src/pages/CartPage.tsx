@@ -213,6 +213,7 @@ export function CartPage() {
             <div>
               <h2 className="font-serif text-[26px] tracking-[-.01em] text-ink">{t('formTitle')}</h2>
               <p className="mt-1 text-[13px] text-muted">{t('formSub')}</p>
+              <p className="mt-1 text-[13px] text-muted">{t('photoCartHint')}</p>
             </div>
 
             <Field

@@ -42,6 +42,9 @@ describe('navegação', () => {
     expect(
       screen.getByRole('heading', { level: 1, name: 'Placa Retangular Memória' })
     ).toBeInTheDocument();
+    // A loja não tem upload: quem compra precisa saber na página da peça que a foto é pedida
+    // depois, no atendimento.
+    expect(screen.getByRole('heading', { name: 'A foto da homenagem' })).toBeInTheDocument();
     unmount();
 
     renderWithProviders(<App />, { route: '/peca/sumiu' });

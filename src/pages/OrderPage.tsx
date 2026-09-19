@@ -79,6 +79,24 @@ export function OrderPage() {
             {t('orderKeepBrowsing')}
           </ButtonLink>
         </div>
+
+        {/* A loja não manda e-mail de confirmação: esta lista é tudo que o cliente tem para saber
+            que o próximo passo é da loja, e que a foto ainda vai ser pedida. */}
+        <section className="mx-auto mt-12 max-w-md border-t border-line pt-8 text-left">
+          <h2 className="text-[10.5px] font-semibold tracking-[.22em] text-muted uppercase">
+            {t('orderNextTitle')}
+          </h2>
+          <ol className="mt-4 flex flex-col gap-3">
+            {[t('orderNext1'), t('orderNext2'), t('orderNext3')].map((step, index) => (
+              <li key={step} className="flex gap-3 text-[13.5px] leading-relaxed text-ink-soft">
+                <span aria-hidden className="font-serif text-[15px] text-brand">
+                  {index + 1}
+                </span>
+                {step}
+              </li>
+            ))}
+          </ol>
+        </section>
       </div>
     </Container>
   );
