@@ -9,7 +9,7 @@ import { Container } from '../components/ui/Layout';
 import { ProductImage } from '../components/ui/ProductImage';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { useLang } from '../i18n/lang-context';
-import { FREE_SHIPPING_FROM, MAX_QTY, cartTotal, shippingFor } from '../lib/cart';
+import { FREE_SHIPPING_FROM, MAX_QTY, cartTotal, shippingFor, soldOutItems } from '../lib/cart';
 import {
   OrderRateLimitError,
   OrderStaleCartError,
@@ -80,6 +80,11 @@ function CartLines() {
                 {productName(product, lang)}
               </h3>
               {variant && <p className="text-[12.5px] text-muted">{variant}</p>}
+              {product.stock <= 0 && (
+                <p className="text-[12px] font-semibold tracking-[.08em] text-brand-dark uppercase">
+                  {t('soldOut')}
+                </p>
+              )}
               <div className="mt-auto flex flex-wrap items-center gap-4 pt-2">
                 <QtyStepper item={item} />
                 <button
@@ -109,7 +114,9 @@ export function CartPage() {
 
   const [draft, setDraft] = useState({ customer: '', phone: '', note: '' });
   const [errors, setErrors] = useState<OrderErrors>({});
-  const [failure, setFailure] = useState<'errSubmit' | 'errTooMany' | 'errStale' | null>(null);
+  const [failure, setFailure] = useState<
+    'errSubmit' | 'errTooMany' | 'errStale' | 'errSoldOut' | null
+  >(null);
   const [sending, setSending] = useState(false);
 
   useDocumentMeta({
@@ -121,6 +128,10 @@ export function CartPage() {
 
   const subtotal = cartTotal(products, items);
   const shipping = shippingFor(subtotal);
+  const soldOut = soldOutItems(products, items);
+  // Esgotado aparece antes do envio: o botão fica desabilitado e um botão morto sem explicação é
+  // o cliente parado na tela sem saber o que a loja espera dele.
+  const blocking = soldOut.length > 0 ? ('errSoldOut' as const) : failure;
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -128,6 +139,12 @@ export function CartPage() {
     setErrors(found);
     setFailure(null);
     if (hasErrors(found)) return;
+    // Esgotado não é erro de campo: o cliente preencheu tudo certo e a loja é que não consegue
+    // produzir a peça agora. Enviar assim viraria promessa de entrega sem data.
+    if (soldOut.length > 0) {
+      setFailure('errSoldOut');
+      return;
+    }
 
     setSending(true);
     try {
@@ -182,7 +199,7 @@ export function CartPage() {
           className="mb-6 flex items-center justify-between gap-4 border border-line-deep bg-cream-dim px-4 py-3 text-[13px] text-ink-soft"
         >
           <span>{t('cartDropped')}</span>
-          <button type="button" onClick={dismissDropped} aria-label={t('closeMenu')}>
+          <button type="button" onClick={dismissDropped} aria-label={t('cartDismiss')}>
             ✕
           </button>
         </div>
@@ -226,13 +243,18 @@ export function CartPage() {
               hint={`${draft.note.length}/${MAX_NOTE}`}
             />
 
-            {failure && (
+            {blocking && (
               <p role="alert" className="text-[13px] text-brand-dark">
-                {t(failure)}
+                {t(blocking)}
               </p>
             )}
 
-            <Button type="submit" size="lg" disabled={sending} className="self-start">
+            <Button
+              type="submit"
+              size="lg"
+              disabled={sending || soldOut.length > 0}
+              className="self-start"
+            >
               {sending ? t('submitting') : t('submit')}
             </Button>
           </form>

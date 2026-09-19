@@ -11,6 +11,7 @@ import {
   sanitizeCart,
   setQty,
   shippingFor,
+  soldOutItems,
   whatsappLink,
   whatsappMessage,
 } from './cart';
@@ -167,6 +168,22 @@ describe('sanitizeCart', () => {
       products
     );
     expect(cart).toEqual([{ id: 'p1', qty: 3 }]);
+  });
+});
+
+describe('soldOutItems', () => {
+  const esgotada = makeProduct({ id: 'p9', stock: 0 });
+
+  it('aponta a linha cuja peça ficou sem estoque', () => {
+    const items: CartItem[] = [
+      { id: 'p1', qty: 1 },
+      { id: 'p9', qty: 2 },
+    ];
+    expect(soldOutItems([...products, esgotada], items)).toEqual([{ id: 'p9', qty: 2 }]);
+  });
+
+  it('ignora peça que nem está mais no catálogo — quem cuida disso é o saneamento', () => {
+    expect(soldOutItems(products, [{ id: 'sumiu', qty: 1 }])).toEqual([]);
   });
 });
 

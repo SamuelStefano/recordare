@@ -102,6 +102,7 @@ const pt = {
   increase: 'Aumentar quantidade',
   decrease: 'Diminuir quantidade',
   cartDropped: 'Uma peça saiu do catálogo e foi removida do seu carrinho.',
+  cartDismiss: 'Fechar aviso',
 
   formTitle: 'Seus dados',
   formSub: 'Confirmamos os detalhes com você antes de produzir.',
@@ -120,6 +121,8 @@ const pt = {
   errStale:
     'Uma peça do seu carrinho saiu do catálogo. Revisamos a lista para você — confira e envie de novo.',
   errEmptyCart: 'Seu carrinho está vazio.',
+  errSoldOut:
+    'Uma peça do seu carrinho está esgotada e não pode ser produzida agora. Remova a peça para enviar o restante do pedido.',
 
   orderTitle: 'Pedido recebido',
   orderBody: 'Guardamos seu pedido. Nossa equipe confirma os detalhes e o prazo com você.',
@@ -263,6 +266,7 @@ const en: Record<TranslationKey, string> = {
   increase: 'Increase quantity',
   decrease: 'Decrease quantity',
   cartDropped: 'A piece left the catalog and was removed from your cart.',
+  cartDismiss: 'Dismiss notice',
 
   formTitle: 'Your details',
   formSub: 'We confirm every detail with you before production.',
@@ -281,6 +285,8 @@ const en: Record<TranslationKey, string> = {
   errStale:
     'A piece in your cart left the catalog. We refreshed the list for you — review it and send again.',
   errEmptyCart: 'Your cart is empty.',
+  errSoldOut:
+    'A piece in your cart is sold out and cannot be produced right now. Remove it to send the rest of the order.',
 
   orderTitle: 'Order received',
   orderBody: 'Your order is saved. Our team will confirm the details and lead time with you.',

@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import App from '../App';
 import { CART_STORAGE_KEY } from '../cart/CartProvider';
 import { OrderRateLimitError, OrderStaleCartError } from '../lib/catalog';
-import { renderWithProviders } from '../test/render';
+import { renderWithProviders, testProducts } from '../test/render';
 
 const createOrder = vi.hoisted(() => vi.fn());
 
@@ -144,6 +144,23 @@ describe('checkout', () => {
     expect(link).toHaveAttribute('href', expect.stringContaining('https://wa.me/5544999990000'));
     expect(link).toHaveAttribute('href', expect.stringContaining('7B2F4A10'));
     vi.unstubAllEnvs();
+  });
+});
+
+describe('peça esgotada', () => {
+  // O banco só recusa peça inativa: esgotada passa e vira pedido que a loja não consegue produzir.
+  it('avisa e não deixa enviar enquanto a peça estiver sem estoque', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<App />, {
+      route: '/carrinho',
+      products: testProducts.map((product) =>
+        product.id === 'p1' ? { ...product, stock: 0 } : product
+      ),
+    });
+
+    expect(screen.getByRole('alert')).toHaveTextContent(/esgotada/);
+    await user.click(screen.getByRole('button', { name: 'Enviar pedido' }));
+    expect(createOrder).not.toHaveBeenCalled();
   });
 });
 

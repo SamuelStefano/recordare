@@ -12,8 +12,11 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, priority = false }: ProductCardProps) {
-  const { lang } = useLang();
-  const badge = productBadge(product, lang);
+  const { lang, t } = useLang();
+  const soldOut = product.stock <= 0;
+  // Esgotado manda no selo: um "Mais vendido" numa peça que não dá para comprar leva o cliente a
+  // abrir a página e descobrir sozinho que perdeu a viagem.
+  const badge = soldOut ? t('soldOut') : productBadge(product, lang);
 
   return (
     <article className="group flex flex-col">
@@ -26,7 +29,9 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
             height={540}
             priority={priority}
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 280px"
-            className="aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+            className={`aspect-square w-full object-cover transition-transform duration-500 group-hover:scale-[1.03] ${
+              soldOut ? 'opacity-70' : ''
+            }`}
           />
           {badge && (
             <span className="absolute top-3 left-3">

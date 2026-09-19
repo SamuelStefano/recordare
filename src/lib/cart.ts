@@ -56,6 +56,15 @@ export function cartTotal(products: Product[], items: CartItem[]): number {
   }, 0);
 }
 
+// A peça pode esgotar entre o clique no catálogo e o envio do pedido. O banco só recusa peça
+// inativa, então um esgotado passaria direto e viraria promessa de entrega que a loja não cumpre.
+export function soldOutItems(products: Product[], items: CartItem[]): CartItem[] {
+  return items.filter((item) => {
+    const product = products.find((p) => p.id === item.id);
+    return product ? product.stock <= 0 : false;
+  });
+}
+
 export function shippingFor(subtotal: number): number {
   return subtotal === 0 || subtotal >= FREE_SHIPPING_FROM ? 0 : FLAT_SHIPPING;
 }
