@@ -127,7 +127,16 @@ export function whatsappMessage(
     lines.push(`- ${productName(product, lang)} (${item.qty}x)${suffix}`);
   }
 
-  lines.push('', `${t.orderMsgTotal}: ${money(cartTotal(products, items))}`);
+  // O mesmo resumo que o cliente acabou de ver no carrinho. Mandar só o total das peças faria a
+  // mensagem contradizer a tela em R$ 39,90 — desconfiança logo no primeiro contato.
+  const subtotal = cartTotal(products, items);
+  const shipping = shippingFor(subtotal);
+  lines.push(
+    '',
+    `${t.subtotal}: ${money(subtotal)}`,
+    `${t.shipping}: ${shipping === 0 ? t.shippingFree : money(shipping)}`,
+    `${t.orderMsgTotal}: ${money(subtotal + shipping)}`
+  );
   if (reference) lines.push(`${t.orderMsgRef}: ${reference}`);
 
   return lines.join('\n');

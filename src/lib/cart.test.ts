@@ -2,6 +2,7 @@ import type { CartItem } from './catalog';
 import { makeProduct } from '../test/factories';
 import { money } from './format';
 import {
+  FLAT_SHIPPING,
   MAX_QTY,
   addItem,
   cartCount,
@@ -199,6 +200,24 @@ describe('whatsappMessage', () => {
       reference: 'A1B2C3D4',
     });
     expect(message).toContain('Referência: A1B2C3D4');
+  });
+
+  // A mensagem é o que o cliente lê depois de fechar o pedido: um total diferente do que ele viu
+  // no carrinho parece cobrança escondida logo no primeiro contato.
+  it('repete o mesmo subtotal, frete e total mostrados no carrinho', () => {
+    const message = whatsappMessage(products, [{ id: 'p1', qty: 1 }], {
+      lang: 'pt',
+      customer: 'Maria',
+    });
+    expect(message).toContain(`Subtotal: ${money(100)}`);
+    expect(message).toContain(`Frete: ${money(FLAT_SHIPPING)}`);
+    expect(message).toContain(`Total: ${money(100 + FLAT_SHIPPING)}`);
+  });
+
+  it('diz frete grátis acima do piso, como a tela', () => {
+    const message = whatsappMessage(products, items, { lang: 'pt', customer: 'Maria' });
+    expect(message).toContain('Frete: Grátis');
+    expect(message).toContain(`Total: ${money(700)}`);
   });
 
   it('não gera colchete vazio quando não há opção', () => {

@@ -103,9 +103,14 @@ Olá Maria da Silva,
 Pedido:
 - Medalhão Oval Clássico (1x) [18x24 · Branco · Fosco]
 
-Total: R$ 249,00
+Subtotal: R$ 249,00
+Frete: R$ 39,90
+Total: R$ 288,90
 Referência: B6C7CC41
 ```
+
+O resumo repete linha por linha o que estava na tela do carrinho. Mandar só o total das peças
+faria a primeira mensagem do atendimento contradizer a loja em R$ 39,90.
 
 Número inválido não vira link quebrado: `whatsappLink` exige de 10 a 15 dígitos e, se não bater,
 esconde o atalho e a loja promete ligar.
