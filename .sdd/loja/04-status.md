@@ -3,10 +3,10 @@
 > Atualizar ao fim de cada sprint. Este é o arquivo que atravessa sessões: quem
 > abrir o projeto daqui a um mês lê só isto para saber onde parou.
 
-**Última atualização:** 2026-08-14
-**Versão atual:** v1.0.0 (loja no ar)
+**Última atualização:** 2026-09-19
+**Versão atual:** v1.1.0 (confiança e consistência do pedido)
 **Sprint corrente:** nenhuma — escopo da rodada entregue
-**Gate:** verde (tsc limpo · oxlint silencioso · 89 testes · build em 264 ms · bundle 459 kB / 132 kB gz)
+**Gate:** verde (tsc limpo · oxlint silencioso · 127 testes · build em 373 ms · bundle 465 kB / 134 kB gz)
 **Produção:** https://samuelstefano.github.io/recordare/
 
 ---
@@ -44,6 +44,14 @@
 
 Checkout e pagamento · conta de usuário · painel admin · upload de foto pelo site ·
 busca textual · SSR/SEO avançado. Justificativa em `01-requirements.md`.
+
+### Pendente de aprovação do Samuel
+
+| Item | O que é | Por que não foi feito sozinho |
+|---|---|---|
+| `0007_orders_insert_columns.sql` | Troca o grant de insert da tabela `orders` inteira pelo grant das cinco colunas que o site escreve | Mexe em privilégio de banco com insert anônimo: escrito e **não aplicado**, como manda a regra de migration |
+| Fotos reais das peças | Só o dono consegue fotografar as peças | Sem elas o kit do ML continua marcado `NÃO PUBLIQUE`, e o `img-src` do CSP vai precisar do host novo |
+| Prazo real de produção/entrega | A loja hoje promete confirmar o prazo no atendimento, sem número | Inventar prazo é prometer o que ninguém checou |
 
 ### Débito técnico
 
@@ -93,6 +101,46 @@ externo — datar em calendário seria inventar precisão que não existe.
 ---
 
 ## 3. Changelog
+
+### v1.1.0 — 19/09/2026 — Confiança e consistência do pedido
+
+**Corrigido**
+- A mensagem de WhatsApp fechava com o total **das peças** enquanto o carrinho tinha
+  acabado de mostrar o total **com frete**: a primeira mensagem do atendimento
+  contradizia a loja em R$ 39,90. Agora o resumo repete subtotal, frete e total
+- Um F5 na tela de confirmação montava o atalho de WhatsApp antes de o catálogo chegar:
+  o link nascia sem nenhuma peça e com "Total: R$ 0,00". O atalho só aparece com o
+  catálogo carregado
+- Peça esgotada era comprável: a página da peça já travava o botão, mas o carrinho não
+  olhava estoque e o banco só recusa peça **inativa**. Agora o catálogo marca `Esgotado`
+  no card, o carrinho marca a linha e o envio fica travado com o motivo na tela
+- Campo com `focus:outline-none` só mudava a cor da borda — foco de teclado quase
+  invisível. Todos os campos ganharam anel de foco
+- O número do seletor de quantidade tinha `aria-label` num `<span>` (ignorado pelo
+  leitor de tela) e o "fechar aviso" do carrinho se anunciava como "Fechar menu"
+
+**Adicionado**
+- Bloco "A foto da homenagem" na página da peça: a loja não tem upload, e quem compra
+  precisa saber **na peça** que a imagem é pedida no atendimento, o que faz uma foto
+  servir, e que o prazo é confirmado antes de a produção começar
+- Confirmação do pedido passou a listar os próximos passos — sem e-mail de confirmação,
+  essa lista é tudo que o cliente tem
+- JSON-LD de `Store` na home e trilha `BreadcrumbList` na peça, com o mesmo código
+  servindo a tela e o pré-render (`src/lib/structured-data.ts`) — antes eram duas cópias
+  que podiam divergir sem ninguém ver
+- `srcset` nas imagens do catálogo: o `sizes` existia sem `srcset`, então a miniatura de
+  90 px do carrinho baixava a mesma imagem de 700 px da página da peça
+- Kit do Mercado Livre avisa quando a peça já tem `ml_item_id` e leva a coluna na
+  planilha: o kit regenera o catálogo inteiro, e republicar cria anúncio duplicado
+
+**Segurança**
+- Revisão pela skill `app-security`: nenhum segredo no cliente (só URL e chave
+  publicável), RLS default-deny de pé, `orders` sem policy de select, funções
+  `SECURITY DEFINER` com `search_path` fixo e revogadas de `anon`
+- Achado: o grant de insert em `orders` é da tabela inteira, então um insert direto na
+  API escolhe `status` e `created_at` — e `created_at` no passado nasce fora da primeira
+  página do Table Editor, que é o único lugar onde alguém vê pedido novo. Migration
+  `0007` escrita e **não aplicada**, esperando aprovação
 
 ### v1.0.0 — 14/08/2026 — Loja no ar
 

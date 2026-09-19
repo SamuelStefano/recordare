@@ -43,3 +43,16 @@ npx tsc -b --noEmit && npx vitest run && npx vite build
 ```
 
 Os três verdes, senão o turno não entregou.
+
+## Status
+
+Fonte da verdade: `.sdd/loja/04-status.md` (backlog, roadmap, changelog, débito).
+
+**19/09/2026 — v1.1.0, gate verde:** tsc limpo, oxlint silencioso, 127 testes, build em
+373 ms. A rodada fechou consistência do pedido (total do WhatsApp igual ao do carrinho,
+atalho só com catálogo carregado, peça esgotada travada no carrinho), confiança
+(orientação de foto, prazo e próximos passos), SEO (`Store` + `BreadcrumbList` sem cópia
+no pré-render), `srcset` nas imagens e aviso de anúncio duplicado no kit do ML.
+
+Esperando o Samuel: aplicar `supabase/migrations/0007_orders_insert_columns.sql`, as
+fotos reais das peças e o prazo real de produção.
