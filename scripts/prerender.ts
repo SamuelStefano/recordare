@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import type { Product } from '../src/lib/catalog';
 import { dictionaries } from '../src/lib/i18n';
 import { productDescription, productName } from '../src/lib/labels';
+import { productJsonLd, storeJsonLd } from '../src/lib/structured-data';
 
 // GitHub Pages não reescreve rota de SPA: /peca/<slug> cairia no 404.html e responderia 404 para
 // o Google. Escrever um index.html por rota resolve o status e ainda entrega o <head> certo sem
@@ -50,6 +51,7 @@ const pages: Page[] = [
     path: '/',
     title: `Recordare · ${pt.heroTitle}`,
     description: pt.heroSub,
+    jsonLd: storeJsonLd(`${origin}/`, pt.heroSub),
   },
   {
     path: '/catalogo',
@@ -67,23 +69,15 @@ const pages: Page[] = [
     title: `${productName(product, 'pt')} · Recordare`,
     description: productDescription(product, 'pt'),
     image: product.img,
-    jsonLd: {
-      '@context': 'https://schema.org',
-      '@type': 'Product',
-      name: productName(product, 'pt'),
-      description: productDescription(product, 'pt'),
-      image: product.img,
-      sku: product.sku,
-      brand: { '@type': 'Brand', name: 'Recordare' },
-      offers: {
-        '@type': 'Offer',
-        price: product.price.toFixed(2),
-        priceCurrency: 'BRL',
-        availability:
-          product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-        url: `${origin}/peca/${product.slug}/`,
+    jsonLd: productJsonLd(
+      product,
+      {
+        home: `${origin}/`,
+        catalog: `${origin}/catalogo/`,
+        product: `${origin}/peca/${product.slug}/`,
       },
-    },
+      'pt'
+    ),
   })),
 ];
 

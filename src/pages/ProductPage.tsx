@@ -17,6 +17,7 @@ import { estimateArea } from '../lib/area';
 import { relatedTo } from '../lib/filter';
 import { money } from '../lib/format';
 import { siteUrl } from '../lib/site';
+import { productJsonLd } from '../lib/structured-data';
 import {
   COLOR_SWATCH,
   categoryLabel,
@@ -108,24 +109,11 @@ function ProductDetail({ product }: { product: Product }) {
     description,
     path,
     image: product.img,
-    jsonLd: {
-      '@context': 'https://schema.org',
-      '@type': 'Product',
-      name,
-      description,
-      image: product.img,
-      sku: product.sku,
-      brand: { '@type': 'Brand', name: 'Recordare' },
-      offers: {
-        '@type': 'Offer',
-        price: product.price.toFixed(2),
-        priceCurrency: 'BRL',
-        availability: soldOut
-          ? 'https://schema.org/OutOfStock'
-          : 'https://schema.org/InStock',
-        url: siteUrl(path),
-      },
-    },
+    jsonLd: productJsonLd(
+      product,
+      { home: siteUrl('/'), catalog: siteUrl('/catalogo'), product: siteUrl(path) },
+      lang
+    ),
   });
 
   return (

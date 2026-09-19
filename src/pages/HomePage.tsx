@@ -9,6 +9,8 @@ import { ProductImage } from '../components/ui/ProductImage';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { useLang } from '../i18n/lang-context';
 import { CATEGORIES, categoryDescription, categoryLabel } from '../lib/labels';
+import { siteUrl } from '../lib/site';
+import { storeJsonLd } from '../lib/structured-data';
 
 function Hero() {
   const { t } = useLang();
@@ -139,6 +141,7 @@ export function HomePage() {
     title: `Recordare · ${t('heroTitle')}`,
     description: t('heroSub'),
     path: '/',
+    jsonLd: storeJsonLd(siteUrl('/'), t('heroSub')),
   });
 
   return (
