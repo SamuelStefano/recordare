@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { srcSetFor } from '../../lib/image';
 
 interface ProductImageProps {
   src: string;
@@ -40,6 +41,7 @@ export function ProductImage({
   return (
     <img
       src={src}
+      srcSet={srcSetFor(src)}
       alt={alt}
       width={width}
       height={height}
