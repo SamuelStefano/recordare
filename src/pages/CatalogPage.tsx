@@ -111,7 +111,7 @@ export function CatalogPage() {
               value={filters.sort}
               onChange={(event) => setFilter('sort', event.target.value)}
               aria-label={t('sort')}
-              className="h-10 rounded-[2px] border border-line-deep bg-cream px-3 text-[13px] text-ink focus:border-brand focus:outline-none"
+              className="h-10 rounded-[2px] border border-line-deep bg-cream px-3 text-[13px] text-ink focus:border-brand focus:ring-2 focus:ring-brand focus:outline-none"
             >
               <option value="relevancia">{t('sortRelevance')}</option>
               <option value="preco-asc">{t('sortPriceLow')}</option>
@@ -140,7 +140,7 @@ export function CatalogPage() {
             value={filters.q}
             onChange={(event) => setFilter('q', event.target.value)}
             placeholder={t('search')}
-            className="h-11 w-full rounded-[2px] border border-line-deep bg-cream px-4 text-[13.5px] text-ink placeholder:text-faint focus:border-brand focus:outline-none"
+            className="h-11 w-full rounded-[2px] border border-line-deep bg-cream px-4 text-[13.5px] text-ink placeholder:text-faint focus:border-brand focus:ring-2 focus:ring-brand focus:outline-none"
           />
         </label>
       </div>

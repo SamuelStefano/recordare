@@ -25,7 +25,7 @@ function QtyStepper({ item }: { item: CartItem }) {
   const { setQty } = useCart();
 
   return (
-    <div className="inline-flex items-center border border-line-deep">
+    <div role="group" aria-label={t('qtyLabel')} className="inline-flex items-center border border-line-deep">
       <button
         type="button"
         aria-label={t('decrease')}
@@ -34,7 +34,7 @@ function QtyStepper({ item }: { item: CartItem }) {
       >
         −
       </button>
-      <span aria-label={t('qtyLabel')} className="w-9 text-center text-[13.5px] tabular-nums">
+      <span className="w-9 text-center text-[13.5px] tabular-nums">
         {item.qty}
       </span>
       <button

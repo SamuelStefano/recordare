@@ -2,7 +2,7 @@ import { useId, type InputHTMLAttributes, type TextareaHTMLAttributes } from 're
 
 const CONTROL =
   'w-full rounded-[2px] border bg-cream px-3.5 text-[13.5px] text-ink placeholder:text-faint ' +
-  'transition-colors duration-200 focus:border-brand focus:outline-none';
+  'transition-colors duration-200 focus:border-brand focus:ring-2 focus:ring-brand focus:outline-none';
 
 function Shell({
   id,

@@ -49,7 +49,7 @@ function AreaCalculator({ product, size }: { product: Product; size: string | un
           step="0.1"
           value={input}
           onChange={(event) => setInput(event.target.value)}
-          className="mt-2 h-11 w-full rounded-[2px] border border-line-deep bg-bg px-3.5 text-[13.5px] text-ink focus:border-brand focus:outline-none"
+          className="mt-2 h-11 w-full rounded-[2px] border border-line-deep bg-bg px-3.5 text-[13.5px] text-ink focus:border-brand focus:ring-2 focus:ring-brand focus:outline-none"
         />
       </label>
 
