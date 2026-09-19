@@ -125,6 +125,21 @@ describe('buildKit', () => {
     expect(cdn.warnings[0].message).not.toMatch(/^NÃO PUBLIQUE/);
   });
 
+  // O kit sai do catálogo inteiro toda vez: subir de novo uma peça já anunciada duplica o anúncio,
+  // e anúncio duplicado derruba a reputação do vendedor.
+  it('avisa quando a peça já tem anúncio publicado', () => {
+    const kit = buildKit([makeProduct({ sku: 'X10', ml_item_id: 'MLB123' })], STORE);
+    expect(kit.issues).toEqual([]);
+    expect(kit.warnings).toContainEqual(
+      expect.objectContaining({ sku: 'X10', field: 'anuncio', message: expect.stringContaining('MLB123') })
+    );
+  });
+
+  it('cala sobre duplicata quando a peça ainda não foi publicada', () => {
+    const kit = buildKit([makeProduct({ sku: 'X11', img: `${STORE}/fotos/p.jpg` })], STORE);
+    expect(kit.warnings).toEqual([]);
+  });
+
   it('abre o markdown com o impedimento, não com o primeiro anúncio', () => {
     const markdown = toMarkdown(
       buildKit(
@@ -157,6 +172,12 @@ describe('exportações', () => {
     expect(header).toBe(CSV_COLUMNS.join(','));
     expect(rest.join('\n')).toContain('"');
     expect(csv).toContain('REC-MED-001');
+  });
+
+  it('leva o id do anúncio existente para a planilha', () => {
+    const csv = toCsv([buildListing(makeProduct({ ml_item_id: 'MLB123' }), STORE)]);
+    expect(csv.split('\n')[0]).toContain('ml_item_id');
+    expect(csv).toContain('MLB123');
   });
 
   it('lista as pendências antes dos anúncios no markdown', () => {

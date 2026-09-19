@@ -48,11 +48,13 @@ export interface Listing {
   attributes: Record<string, string>;
   imageUrl: string;
   storeUrl: string;
+  /** Anúncio que já existe no Mercado Livre para esta peça, quando existe. */
+  mlItemId: string | null;
 }
 
 export interface ListingIssue {
   sku: string;
-  field: 'title' | 'description' | 'stock' | 'image';
+  field: 'title' | 'description' | 'stock' | 'image' | 'anuncio';
   message: string;
 }
 
@@ -157,6 +159,7 @@ export function buildListing(product: Product, storeOrigin: string): Listing {
     description: buildDescription(product),
     attributes: buildAttributes(product),
     imageUrl: product.img,
+    mlItemId: product.ml_item_id,
     // Barra final: a loja serve /peca/<slug>/ e sem ela responde redirect. Anúncio não leva redirect.
     storeUrl: `${storeOrigin.replace(/\/$/, '')}/peca/${product.slug}/`,
   };
@@ -195,6 +198,15 @@ export function buildKit(products: Product[], storeOrigin: string): ListingKit {
     if (/^https:\/\//.test(listing.imageUrl)) {
       warnings.push(...checkImageHost(listing, storeOrigin));
     }
+    // O kit regenera o catálogo inteiro toda vez. Subir de novo uma peça que já tem anúncio cria
+    // anúncio duplicado — o Mercado Livre penaliza a reputação de quem faz isso.
+    if (listing.mlItemId) {
+      warnings.push({
+        sku: listing.sku,
+        field: 'anuncio',
+        message: `Já publicado como ${listing.mlItemId} — atualize o anúncio existente em vez de criar outro`,
+      });
+    }
   }
 
   return { listings, issues, warnings };
@@ -219,6 +231,7 @@ export const CSV_COLUMNS = [
   'acabamento',
   'imagem',
   'link_loja',
+  'ml_item_id',
   'descricao',
 ] as const;
 
@@ -238,6 +251,7 @@ export function toCsv(listings: Listing[]): string {
       listing.attributes.ACABAMENTO ?? '',
       listing.imageUrl,
       listing.storeUrl,
+      listing.mlItemId ?? '',
       listing.description,
     ]
       .map(csvCell)
@@ -291,6 +305,7 @@ export function toMarkdown(kit: ListingKit): string {
         .join(' · ')}`,
       `- **Imagem:** ${listing.imageUrl}`,
       `- **Página na loja:** ${listing.storeUrl}`,
+      ...(listing.mlItemId ? [`- **Já publicado como:** ${listing.mlItemId}`] : []),
       '',
       '```',
       listing.description,
