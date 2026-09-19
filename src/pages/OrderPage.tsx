@@ -11,7 +11,7 @@ import { readReceipt } from '../lib/order';
 export function OrderPage() {
   const { id } = useParams<{ id: string }>();
   const { lang, t } = useLang();
-  const { products } = useCatalog();
+  const { products, status } = useCatalog();
 
   const reference = orderReference(id);
   useDocumentMeta({
@@ -25,8 +25,12 @@ export function OrderPage() {
   // O link do WhatsApp é um atalho, não o pedido: se o número não estiver configurado ou
   // o recibo não estiver na sessão, a venda continua registrada e a loja avisa que vai
   // ligar. Nada aqui pode fazer o cliente achar que o pedido se perdeu.
+  //
+  // O resumo sai dos preços do catálogo, então só existe com o catálogo carregado. Num F5 nesta
+  // tela o link nasceria com a lista vazia e "Total: R$ 0,00" — pior que não oferecer atalho.
   const link =
     receipt &&
+    status === 'ready' &&
     whatsappLink(
       import.meta.env.VITE_WHATSAPP_PHONE,
       whatsappMessage(products, receipt.items, {
@@ -67,7 +71,9 @@ export function OrderPage() {
               {t('orderWhatsapp')}
             </a>
           ) : (
-            <p className="w-full text-[13px] text-muted">{t('orderNoContact')}</p>
+            status !== 'loading' && (
+              <p className="w-full text-[13px] text-muted">{t('orderNoContact')}</p>
+            )
           )}
           <ButtonLink href="/catalogo" variant="outline" size="lg">
             {t('orderKeepBrowsing')}

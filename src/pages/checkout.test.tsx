@@ -146,3 +146,34 @@ describe('checkout', () => {
     vi.unstubAllEnvs();
   });
 });
+
+describe('confirmação recarregada', () => {
+  const ORDER_ID = '7b2f4a10-0000-4000-8000-000000000000';
+
+  beforeEach(() => {
+    sessionStorage.setItem(
+      `recordare.order.${ORDER_ID}`,
+      JSON.stringify({ id: ORDER_ID, customer: 'Maria Silva', items: [{ id: 'p1', qty: 1 }] })
+    );
+    vi.stubEnv('VITE_WHATSAPP_PHONE', '5544999990000');
+  });
+
+  afterEach(() => vi.unstubAllEnvs());
+
+  // O resumo da mensagem sai dos preços do catálogo: com ele ainda carregando, o atalho nasceria
+  // sem nenhuma peça e com "Total: R$ 0,00".
+  it('não oferece o atalho enquanto o catálogo não chegou', () => {
+    renderWithProviders(<App />, { route: `/pedido/${ORDER_ID}`, status: 'loading' });
+
+    expect(screen.getByRole('heading', { name: 'Pedido recebido' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Continuar no WhatsApp' })).not.toBeInTheDocument();
+  });
+
+  it('oferece o atalho com o pedido inteiro assim que o catálogo carrega', () => {
+    renderWithProviders(<App />, { route: `/pedido/${ORDER_ID}` });
+
+    const href = screen.getByRole('link', { name: 'Continuar no WhatsApp' }).getAttribute('href');
+    expect(decodeURIComponent(href ?? '')).toContain('Medalhão Oval Clássico (1x)');
+    expect(decodeURIComponent(href ?? '')).toContain('Total: R$');
+  });
+});
