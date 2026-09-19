@@ -60,6 +60,11 @@ Migrations em `supabase/migrations/`, aplicadas em ordem no schema `recordare`.
   (`check_order_items`). Sem isso dava para gravar, falando direto com a API, um pedido de peça
   inexistente ou de 9999 unidades — não vira dinheiro, mas suja a única fila de pedidos que existe.
 
+> **Pendente de aprovação: `0007_orders_insert_columns.sql`.** O grant de insert em `orders` é da
+> tabela inteira, então um pedido enviado direto na API pode escolher `status` e `created_at` —
+> nasce fora da primeira página do Table Editor, que é o único lugar onde alguém vê pedido novo.
+> A migration troca pelo grant das cinco colunas que o site realmente escreve. **Não foi aplicada.**
+
 ## Fluxo de venda
 
 1. Carrinho em `localStorage`, saneado contra o catálogo vivo (item fora do ar sai e o cliente é avisado).
@@ -125,6 +130,13 @@ sem contato externo na descrição) e sai com erro se algo reprovar — o mesmo 
 > Mercado Livre baixa a foto ao criar o anúncio, então subir assim publica a peça com o retrato de
 > outra pessoa. Isso reprova por direito de imagem e derruba a reputação do vendedor. Trocar
 > `products.img` pela foto real (de preferência servida pela própria loja) apaga o aviso sozinho.
+>
+> Foto em host novo exige mexer no `img-src` do CSP (`index.html` **e** `vercel.json`, que o teste
+> compara): fora da lista, a imagem simplesmente não carrega na loja.
+
+O kit também avisa quando a peça já tem `ml_item_id` — republicar cria anúncio duplicado, e
+duplicata derruba a reputação do vendedor. A planilha leva a coluna `ml_item_id` para essa
+conferência.
 
 ## Hospedagem
 
