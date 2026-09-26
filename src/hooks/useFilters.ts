@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useLocation, useSearch } from 'wouter';
 
-export const SORTS = ['relevancia', 'preco-asc', 'preco-desc', 'avaliacao'] as const;
+export const SORTS = ['relevancia', 'preco-asc', 'preco-desc'] as const;
 export type Sort = (typeof SORTS)[number];
 
 export interface Filters {

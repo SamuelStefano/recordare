@@ -11,10 +11,6 @@ export function money(value: number): string {
   return BRL.format(Number.isFinite(value) ? value : 0);
 }
 
-export function ratingLabel(rating: number, reviews: number): string {
-  return `★ ${rating.toFixed(1)} (${reviews})`;
-}
-
 export function pluralResults(count: number, one: string, many: string): string {
   return `${count} ${count === 1 ? one : many}`;
 }

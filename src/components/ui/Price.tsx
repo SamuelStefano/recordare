@@ -17,14 +17,3 @@ export function Price({ value, unit = 'un', className = '' }: PriceProps) {
   );
 }
 
-export function Stars({ rating, reviews }: { rating: number; reviews: number }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 text-[12.5px] text-muted">
-      <span aria-hidden className="text-star">
-        ★
-      </span>
-      <span>{rating.toFixed(1)}</span>
-      <span className="text-faint">({reviews})</span>
-    </span>
-  );
-}

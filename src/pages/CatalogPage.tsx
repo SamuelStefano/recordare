@@ -116,7 +116,6 @@ export function CatalogPage() {
               <option value="relevancia">{t('sortRelevance')}</option>
               <option value="preco-asc">{t('sortPriceLow')}</option>
               <option value="preco-desc">{t('sortPriceHigh')}</option>
-              <option value="avaliacao">{t('sortRating')}</option>
             </select>
           </label>
           <Button

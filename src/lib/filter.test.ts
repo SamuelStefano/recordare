@@ -77,10 +77,6 @@ describe('applyFilters', () => {
     expect(applyFilters(products, { ...base, sort: 'preco-desc' }, 'pt')[0].id).toBe('p1');
   });
 
-  it('ordena por avaliação', () => {
-    expect(applyFilters(products, { ...base, sort: 'avaliacao' }, 'pt')[0].id).toBe('p1');
-  });
-
   it('não muta o catálogo original ao ordenar', () => {
     applyFilters(products, { ...base, sort: 'preco-asc' }, 'pt');
     expect(products.map((p) => p.id)).toEqual(['p1', 'p2']);

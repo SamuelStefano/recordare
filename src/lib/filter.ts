@@ -42,7 +42,6 @@ const COMPARATORS: Record<Sort, (a: Product, b: Product) => number> = {
   relevancia: (a, b) => a.sort_order - b.sort_order,
   'preco-asc': (a, b) => a.price - b.price,
   'preco-desc': (a, b) => b.price - a.price,
-  avaliacao: (a, b) => b.rating - a.rating || b.reviews - a.reviews,
 };
 
 export function applyFilters(products: Product[], filters: Filters, lang: Lang): Product[] {

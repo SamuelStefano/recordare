@@ -3,7 +3,7 @@ import type { Product } from '../../lib/catalog';
 import { useLang } from '../../i18n/lang-context';
 import { categoryLabel, productBadge, productName } from '../../lib/labels';
 import { Badge } from '../ui/Badge';
-import { Price, Stars } from '../ui/Price';
+import { Price } from '../ui/Price';
 import { ProductImage } from '../ui/ProductImage';
 
 interface ProductCardProps {
@@ -47,7 +47,6 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           <h3 className="font-serif text-[19px] leading-tight tracking-[-.01em] text-ink transition-colors duration-200 group-hover:text-brand">
             {productName(product, lang)}
           </h3>
-          <Stars rating={product.rating} reviews={product.reviews} />
           <Price
             value={product.price}
             unit={product.unit}

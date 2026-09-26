@@ -27,7 +27,7 @@ import {
   productDescription,
   productName,
 } from '../lib/labels';
-import { Price, Stars } from '../components/ui/Price';
+import { Price } from '../components/ui/Price';
 
 function AreaCalculator({ product, size }: { product: Product; size: string | undefined }) {
   const { t } = useLang();
@@ -147,10 +147,6 @@ function ProductDetail({ product }: { product: Product }) {
           <h1 className="mt-2 font-serif text-[36px] leading-[1.08] tracking-[-.01em] text-ink sm:text-[42px]">
             {productName(product, lang)}
           </h1>
-          <div className="mt-3 flex items-center gap-3">
-            <Stars rating={product.rating} reviews={product.reviews} />
-            <span className="text-[12.5px] text-faint">{t('pReviews')}</span>
-          </div>
 
           <Price
             value={product.price}
