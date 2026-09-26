@@ -32,6 +32,7 @@ npm run dev
 | `npm run build`       | typecheck + bundle de produção                                |
 | `npm run ml:export`   | gera `out/mercadolivre/anuncios.{csv,md}` do catálogo em prod |
 | `npm run seo:sitemap` | regenera `public/sitemap.xml` e `public/robots.txt`           |
+| `npm run feeds`       | gera `dist/feeds/google.xml` e `dist/feeds/meta.csv` (roda no deploy) |
 
 ## Variáveis de ambiente
 
@@ -94,8 +95,7 @@ Caminhos para fechar esse buraco, do mais barato ao mais completo:
 | Caminho | O que dá | Custo |
 |---|---|---|
 | **Preencher `VITE_WHATSAPP_PHONE`** com o número real | Depois de confirmar, o cliente é convidado a mandar o pedido pronto no WhatsApp — o pedido chega no celular sozinho | Uma variável de repositório |
-| Database Webhook do Supabase em `orders` → n8n/Zapier → WhatsApp ou e-mail | Aviso na hora, mesmo se o cliente não mandar a mensagem | Configuração no painel, sem código |
-| Edge Function no insert mandando e-mail (Resend) | Aviso na hora, sem terceiro | Uma função + uma chave |
+| **Edge Function `order-notify`** (já escrita, ver [Integrações](#integrações)) | Aviso na hora no Telegram, no e-mail ou num webhook (n8n/Zapier), mesmo se o cliente não mandar a mensagem | Deploy da função + um segredo + um Database Webhook no painel |
 | Rotina de conferir o painel | Zero | Depende de disciplina humana |
 
 A primeira linha depende do cliente clicar, então não substitui as outras — mas é o que transforma
@@ -137,6 +137,69 @@ sem contato externo na descrição) e sai com erro se algo reprovar — o mesmo 
 O kit também avisa quando a peça já tem `ml_item_id` — republicar cria anúncio duplicado, e
 duplicata derruba a reputação do vendedor. A planilha leva a coluna `ml_item_id` para essa
 conferência.
+
+## Integrações
+
+Três pontos de encaixe, todos desligados até alguém configurar — nenhum muda o comportamento da
+loja sozinho.
+
+### Aviso de pedido novo — `supabase/functions/order-notify`
+
+Um **Database Webhook** no `INSERT` de `recordare.orders` chama a função, que monta o resumo (peças,
+variante, total das peças, link `wa.me` do cliente) e manda para cada canal que tiver segredo:
+
+| Segredo | Canal |
+|---|---|
+| `ORDER_NOTIFY_SECRET` | **obrigatório** — o webhook manda no header `x-webhook-secret`; sem ele a função responde 401 |
+| `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID` | mensagem no celular, grátis (bot criado no @BotFather) |
+| `RESEND_API_KEY` + `ORDER_NOTIFY_EMAIL_TO` (+ `ORDER_NOTIFY_EMAIL_FROM`) | e-mail; vários destinatários separados por vírgula |
+| `ORDER_NOTIFY_WEBHOOK_URL` | `POST` JSON `{ "event": "order.created", "order": {...} }` para n8n, Zapier, Make, planilha ou CRM |
+
+```bash
+npx supabase@latest functions deploy order-notify --project-ref qvoytjrfuyeammxsuwtx --no-verify-jwt
+npx supabase@latest secrets set --project-ref qvoytjrfuyeammxsuwtx \
+  ORDER_NOTIFY_SECRET="$(openssl rand -hex 32)" TELEGRAM_BOT_TOKEN=... TELEGRAM_CHAT_ID=...
+```
+
+Depois, no painel: **Database → Webhooks → Create** · tabela `recordare.orders` · evento `Insert` ·
+tipo *Supabase Edge Functions* → `order-notify` · header `x-webhook-secret` com o mesmo valor.
+
+- `--no-verify-jwt` porque quem chama é o banco, não um usuário; a porta é o segredo, comparado em
+  tempo constante.
+- A função lê o nome das peças com a **chave anônima** (só catálogo ativo) — não usa service_role.
+- Nome e observação vêm de formulário anônimo e passam por escape antes de virar HTML no e-mail.
+- Falha de um canal não derruba os outros e não afeta o pedido, que já está gravado; o motivo fica
+  no log da função.
+
+### Medição — `window.dataLayer`
+
+A jornada publica eventos no formato de e-commerce do GA4 (`src/lib/analytics.ts`): `view_item_list`,
+`view_item`, `add_to_cart`, `remove_from_cart`, `view_cart`, `begin_checkout`, `generate_lead` (pedido
+registrado, com `transaction_id` = referência) e `contact` (clique no WhatsApp). Os mesmos eventos saem
+como `CustomEvent('recordare:track')` no `window`.
+
+- Pedido é `generate_lead`, não `purchase`: ainda não foi pago nem teve frete confirmado.
+- `item_id` é o SKU, o mesmo do Mercado Livre e dos feeds.
+- **Nome e telefone do cliente nunca entram no dataLayer** — o teste do checkout garante.
+
+Nenhum script de terceiro é carregado. Para ligar o Google Tag Manager (e por ele GA4, Meta Pixel,
+Clarity), é preciso **liberar o host no CSP** — `script-src`/`connect-src`/`img-src` no `index.html`
+**e** no `vercel.json`, que o `security.test.ts` compara — e incluir o snippet do GTM como arquivo
+próprio (o CSP recusa script inline). É decisão de segurança e de LGPD (banner de consentimento), por
+isso não vem ligado.
+
+### Feeds de catálogo — `dist/feeds/`
+
+O deploy gera, a partir do catálogo vivo:
+
+| Arquivo | Onde cadastrar |
+|---|---|
+| `https://samuelstefano.github.io/recordare/feeds/google.xml` | Google Merchant Center → Produtos → Feeds → *Busca programada* (vitrine grátis do Google e Shopping) |
+| `https://samuelstefano.github.io/recordare/feeds/meta.csv` | Meta Commerce Manager → Catálogo → Fontes de dados → *Feed programado* (Instagram, Facebook, catálogo do WhatsApp) |
+
+Preço e estoque chegam aos dois canais no deploy seguinte. **Hoje os feeds saem vazios**, de propósito:
+peça com foto de banco de imagem fica de fora (mesmo motivo do `NÃO PUBLIQUE` do Mercado Livre) e o
+deploy lista quais. Com a foto real no lugar, a peça entra sozinha.
 
 ## Hospedagem
 

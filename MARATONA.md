@@ -54,5 +54,9 @@ atalho só com catálogo carregado, peça esgotada travada no carrinho), confian
 (orientação de foto, prazo e próximos passos), SEO (`Store` + `BreadcrumbList` sem cópia
 no pré-render), `srcset` nas imagens e aviso de anúncio duplicado no kit do ML.
 
+**26/09/2026 — v1.2.0, gate verde:** 153 testes. Aviso de pedido (`order-notify`, não
+deployado), eventos GA4 no dataLayer, feeds do Google e da Meta no deploy, avaliação semeada fora
+da tela.
+
 Esperando o Samuel: aplicar `supabase/migrations/0007_orders_insert_columns.sql`, as
 fotos reais das peças e o prazo real de produção.

@@ -3,10 +3,10 @@
 > Atualizar ao fim de cada sprint. Este é o arquivo que atravessa sessões: quem
 > abrir o projeto daqui a um mês lê só isto para saber onde parou.
 
-**Última atualização:** 2026-09-19
-**Versão atual:** v1.1.0 (confiança e consistência do pedido)
+**Última atualização:** 2026-09-26
+**Versão atual:** v1.2.0 (pronta para integrações)
 **Sprint corrente:** nenhuma — escopo da rodada entregue
-**Gate:** verde (tsc limpo · oxlint silencioso · 127 testes · build em 373 ms · bundle 465 kB / 134 kB gz)
+**Gate:** verde (tsc limpo · oxlint silencioso · 153 testes · build em 507 ms · bundle 466 kB / 135 kB gz)
 **Produção:** https://samuelstefano.github.io/recordare/
 
 ---
@@ -51,6 +51,7 @@ busca textual · SSR/SEO avançado. Justificativa em `01-requirements.md`.
 |---|---|---|
 | `0007_orders_insert_columns.sql` | Troca o grant de insert da tabela `orders` inteira pelo grant das cinco colunas que o site escreve | Mexe em privilégio de banco com insert anônimo: escrito e **não aplicado**, como manda a regra de migration |
 | Fotos reais das peças | Só o dono consegue fotografar as peças | Sem elas o kit do ML continua marcado `NÃO PUBLIQUE`, e o `img-src` do CSP vai precisar do host novo |
+| Ligar o aviso de pedido (`order-notify`) | Deploy da função, segredo `ORDER_NOTIFY_SECRET` + um canal (Telegram é grátis), e o Database Webhook no painel — passo a passo no README, **Integrações** | Precisa do bot/e-mail do dono; a função está escrita, testada e provada localmente |
 | Prazo real de produção/entrega | A loja hoje promete confirmar o prazo no atendimento, sem número | Inventar prazo é prometer o que ninguém checou |
 
 ### Débito técnico
@@ -59,7 +60,7 @@ busca textual · SSR/SEO avançado. Justificativa em `01-requirements.md`.
 |---|---|---|
 | Fotos de produto são retratos de domínio público servidos pelo Wikimedia | Placeholder óbvio numa loja de memorial, e o host devolve 429 quando o navegador pede as 10 de uma vez — no site as imagens aparecem, mas é dependência de terceiro no caminho da venda. Medido em 14/08: 9 das 10 respondem 200 em sequência e a décima volta 429; espaçadas, todas voltam 200. **No Mercado Livre isso é bloqueante**, porque o anúncio é criado com a foto baixada na hora: um 429 vira anúncio sem imagem | Trocar por foto real de peça, hospedada pela própria loja, antes de subir o kit do ML. O risco maior nem é o 429: a foto é o retrato de uma pessoa real que não tem nada a ver com a peça, e o ML publica a imagem baixada. Desde 14/08 o export marca cada uma com `NÃO PUBLIQUE` e abre o markdown com a contagem, para o aviso não morrer no fim de uma lista de dez linhas iguais |
 | Coluna `slot` sem consumidor no código | Campo morto no schema | Remover ou usar em uma próxima rodada |
-| `rating`/`reviews` são semeados, não reais | Não podem virar `aggregateRating` no JSON-LD sem virar risco de conformidade | Substituir por avaliação real ou remover da tela |
+| Colunas `rating`/`reviews` semeadas continuam no schema | Saíram da tela e da ordenação em 26/09; as colunas ficaram sem consumidor | Remover por migration quando houver avaliação real ou decidir que não haverá |
 | `@supabase/supabase-js` inteiro no bundle | 132 kB gz para usar só select e insert | Trocar por `fetch` no PostgREST se o peso incomodar |
 | GitHub Pages não envia header de resposta | Sem `frame-ancestors` nem HSTS; CSP só pela `<meta>` | `vercel.json` já pronto para migrar quando quiser |
 
@@ -85,7 +86,7 @@ externo — datar em calendário seria inventar precisão que não existe.
 | Item | Por quê |
 |---|---|
 | `VITE_WHATSAPP_PHONE` com o número real | **É o item mais urgente.** A loja recebe pedido e não avisa ninguém: sem `select` em `orders` não há painel no site, então hoje o pedido só aparece para quem abrir o Supabase. Com o número preenchido, a confirmação convida o cliente a mandar o pedido pronto no WhatsApp e ele chega no celular sozinho. Caminho provado em build local; ver README |
-| Notificação que não dependa do cliente clicar | Database Webhook em `orders` ou Edge Function no insert. O atalho de WhatsApp cobre a maioria, não todos |
+| Ligar `order-notify` | A função existe desde a v1.2.0; falta o deploy e o webhook, ver README |
 | Fotos reais das peças | O catálogo vende memória; retrato genérico enfraquece a peça |
 | Migrar para Vercel ou domínio próprio | Recupera header de resposta (HSTS, `frame-ancestors`) e tira o subcaminho |
 
@@ -101,6 +102,29 @@ externo — datar em calendário seria inventar precisão que não existe.
 ---
 
 ## 3. Changelog
+
+### v1.2.0 — 26/09/2026 — Pronta para integrações
+
+**Adicionado**
+- Edge Function `order-notify`: um Database Webhook no insert de `orders` repassa o pedido para
+  Telegram, e-mail (Resend) e/ou um webhook genérico (n8n, Zapier, Make). Cada canal liga pelo
+  próprio segredo; o acesso é por `x-webhook-secret` comparado em tempo constante; nomes das peças
+  lidos com a chave anônima, sem service_role; HTML do e-mail com escape do que o cliente digitou.
+  Provada localmente com webhook falso lendo o catálogo de produção. **Não deployada**
+- Eventos de e-commerce no formato GA4 no `window.dataLayer` e como `recordare:track`:
+  `view_item_list`, `view_item`, `add_to_cart`/`remove_from_cart` (pela quantidade que de fato
+  mudou, respeitando o teto de 99), `view_cart`, `begin_checkout`, `generate_lead` e `contact`.
+  Nenhum script de terceiro carregado e nenhum dado pessoal no dataLayer — o teste do checkout
+  prova as duas coisas
+- `npm run feeds` no deploy: `feeds/google.xml` (Merchant Center) e `feeds/meta.csv` (Commerce
+  Manager) a partir do catálogo vivo. Peça com foto de banco de imagem fica de fora com o motivo no
+  log — hoje as 10, então os feeds saem vazios até a foto real entrar
+- `scripts/catalog-source.ts`: o fetch do catálogo que `ml-export` e `prerender` repetiam
+
+**Corrigido**
+- Estrelas e "(128)" semeados apareciam no card e na peça como se fossem avaliação de cliente, e a
+  ordenação "★ Avaliação" ordenava por esse número inventado. Saíram da tela: avaliação falsa numa
+  loja de memorial é propaganda enganosa (CDC art. 37) e reprova no Merchant Center
 
 ### v1.1.0 — 19/09/2026 — Confiança e consistência do pedido
 
