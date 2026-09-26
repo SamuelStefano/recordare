@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useCatalog } from '../catalog/catalog-context';
 import { ProductCard } from '../components/product/ProductCard';
 import { Button, ButtonLink } from '../components/ui/Button';
@@ -8,6 +8,7 @@ import { Container } from '../components/ui/Layout';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { useFilters, type FilterKey } from '../hooks/useFilters';
 import { useLang } from '../i18n/lang-context';
+import { toAnalyticsItem, track } from '../lib/analytics';
 import { pluralResults } from '../lib/format';
 import { applyFilters, optionsFrom } from '../lib/filter';
 import { COLOR_SWATCH, CATEGORIES, categoryLabel, colorLabel, finishLabel } from '../lib/labels';
@@ -42,6 +43,19 @@ export function CatalogPage() {
     () => applyFilters(products, filters, lang),
     [products, filters, lang]
   );
+
+  // Chave pelos ids visíveis, não pela lista: trocar o idioma recria a lista com as mesmas peças e
+  // não pode contar como uma visualização nova.
+  const visibleKey = visible.map((p) => p.id).join(',');
+  const visibleRef = useRef(visible);
+  visibleRef.current = visible;
+  useEffect(() => {
+    if (status !== 'ready') return;
+    track('view_item_list', {
+      item_list_id: 'catalogo',
+      items: visibleRef.current.map((product) => toAnalyticsItem(product, { qty: 1 })),
+    });
+  }, [status, visibleKey]);
 
   const chip = (key: FilterKey, value: string, label: string) => (
     <Chip

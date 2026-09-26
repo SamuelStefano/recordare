@@ -4,6 +4,7 @@ import { ButtonLink } from '../components/ui/Button';
 import { Container } from '../components/ui/Layout';
 import { useDocumentMeta } from '../hooks/useDocumentMeta';
 import { useLang } from '../i18n/lang-context';
+import { track } from '../lib/analytics';
 import { whatsappLink, whatsappMessage } from '../lib/cart';
 import { orderReference } from '../lib/catalog';
 import { readReceipt } from '../lib/order';
@@ -66,6 +67,7 @@ export function OrderPage() {
               href={link}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => track('contact', { method: 'whatsapp', transaction_id: reference })}
               className="inline-flex h-[52px] items-center rounded-[2px] bg-brand px-8 text-[14px] font-medium text-white transition-colors duration-200 hover:bg-brand-dark"
             >
               {t('orderWhatsapp')}

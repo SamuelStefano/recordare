@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { addItem, cartCount, removeItem, sanitizeCart, setQty as setItemQty } from '../lib/cart';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { toAnalyticsItem, track } from '../lib/analytics';
+import { addItem, cartCount, lineQty, removeItem, sanitizeCart, setQty as setItemQty } from '../lib/cart';
 import type { CartItem } from '../lib/catalog';
 import { useCatalog } from '../catalog/catalog-context';
 import { CartContext, type CartValue } from './cart-context';
@@ -41,14 +42,48 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items]);
 
-  const add = useCallback((item: CartItem) => setItems((current) => addItem(current, item)), []);
+  // Medição fora do updater do setState: o StrictMode chama o updater duas vezes e cada evento
+  // sairia em dobro. A ref dá o carrinho atual sem recriar os callbacks a cada mudança.
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
+  const productsRef = useRef(products);
+  productsRef.current = products;
+
+  const trackDelta = useCallback((item: CartItem, delta: number) => {
+    const product = productsRef.current.find((p) => p.id === item.id);
+    if (!product || delta === 0) return;
+    const line = toAnalyticsItem(product, { ...item, qty: Math.abs(delta) });
+    track(delta > 0 ? 'add_to_cart' : 'remove_from_cart', {
+      currency: 'BRL',
+      value: line.price * line.quantity,
+      items: [line],
+    });
+  }, []);
+
+  // Mede a diferença real, não o pedido: somar além do teto de 99 não é mais uma peça.
+  const change = useCallback(
+    (item: CartItem, next: (cart: CartItem[]) => CartItem[]) => {
+      const current = itemsRef.current;
+      const updated = next(current);
+      // Dois cliques antes do próximo render leriam o mesmo carrinho e mediriam errado.
+      itemsRef.current = updated;
+      trackDelta(item, lineQty(updated, item) - lineQty(current, item));
+      setItems(next);
+    },
+    [trackDelta]
+  );
+
+  const add = useCallback(
+    (item: CartItem) => change(item, (cart) => addItem(cart, item)),
+    [change]
+  );
   const remove = useCallback(
-    (item: CartItem) => setItems((current) => removeItem(current, item)),
-    []
+    (item: CartItem) => change(item, (cart) => removeItem(cart, item)),
+    [change]
   );
   const setQty = useCallback(
-    (item: CartItem, qty: number) => setItems((current) => setItemQty(current, item, qty)),
-    []
+    (item: CartItem, qty: number) => change(item, (cart) => setItemQty(cart, item, qty)),
+    [change]
   );
   const clear = useCallback(() => setItems([]), []);
   const dismissDropped = useCallback(() => setDropped(false), []);

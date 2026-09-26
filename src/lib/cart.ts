@@ -29,6 +29,11 @@ export function addItem(cart: CartItem[], itemToAdd: CartItem): CartItem[] {
   return [...cart, { ...itemToAdd, qty: clampQty(itemToAdd.qty) }];
 }
 
+/** Quantidade da mesma variante já no carrinho; 0 quando a linha não existe. */
+export function lineQty(cart: CartItem[], item: CartItem): number {
+  return cart.find((line) => sameVariant(line, item))?.qty ?? 0;
+}
+
 export function removeItem(cart: CartItem[], itemToRemove: CartItem): CartItem[] {
   return cart.filter((item) => !sameVariant(item, itemToRemove));
 }

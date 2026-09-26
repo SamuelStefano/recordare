@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useLocation } from 'wouter';
 import { useCart } from '../cart/cart-context';
 import { useCatalog } from '../catalog/catalog-context';
@@ -14,8 +14,10 @@ import {
   OrderRateLimitError,
   OrderStaleCartError,
   createOrder,
+  orderReference,
   type CartItem,
 } from '../lib/catalog';
+import { cartPayload, track } from '../lib/analytics';
 import { money } from '../lib/format';
 import { productName, variantLabel } from '../lib/labels';
 import { MAX_NOTE, hasErrors, saveReceipt, validateOrder, type OrderErrors } from '../lib/order';
@@ -110,7 +112,7 @@ export function CartPage() {
   const { t } = useLang();
   const [, navigate] = useLocation();
   const { items, clear, dropped, dismissDropped } = useCart();
-  const { products, reload } = useCatalog();
+  const { products, status, reload } = useCatalog();
 
   const [draft, setDraft] = useState({ customer: '', phone: '', note: '' });
   const [errors, setErrors] = useState<OrderErrors>({});
@@ -133,6 +135,14 @@ export function CartPage() {
   // o cliente parado na tela sem saber o que a loja espera dele.
   const blocking = soldOut.length > 0 ? ('errSoldOut' as const) : failure;
 
+  // Uma vez por visita: mudar a quantidade aqui já sai como add/remove, não como carrinho novo.
+  const viewed = useRef(false);
+  useEffect(() => {
+    if (viewed.current || status !== 'ready' || items.length === 0) return;
+    viewed.current = true;
+    track('view_cart', cartPayload(products, items));
+  }, [status, products, items]);
+
   async function submit(event: FormEvent) {
     event.preventDefault();
     const found = validateOrder(draft, items);
@@ -146,6 +156,7 @@ export function CartPage() {
       return;
     }
 
+    track('begin_checkout', cartPayload(products, items));
     setSending(true);
     try {
       const id = await createOrder({
@@ -155,6 +166,9 @@ export function CartPage() {
         items,
       });
       saveReceipt({ id, customer: draft.customer.trim(), items });
+      // `generate_lead`, não `purchase`: o pedido ainda não foi pago nem teve frete confirmado, e
+      // contar como venda inflaria a receita de qualquer painel ligado aqui.
+      track('generate_lead', { ...cartPayload(products, items), transaction_id: orderReference(id) });
       // Só limpa depois que o banco confirmou: falha de rede não pode apagar o carrinho.
       clear();
       navigate(`/pedido/${id}`);

@@ -15,6 +15,7 @@ import { useLang } from '../i18n/lang-context';
 import type { Product } from '../lib/catalog';
 import { estimateArea } from '../lib/area';
 import { relatedTo } from '../lib/filter';
+import { toAnalyticsItem, track } from '../lib/analytics';
 import { money } from '../lib/format';
 import { siteUrl } from '../lib/site';
 import { productJsonLd } from '../lib/structured-data';
@@ -89,6 +90,14 @@ function ProductDetail({ product }: { product: Product }) {
     setColor(product.colors[0]);
     setFinish(product.finishes[0]);
     setJustAdded(false);
+  }, [product]);
+
+  useEffect(() => {
+    track('view_item', {
+      currency: 'BRL',
+      value: product.price,
+      items: [toAnalyticsItem(product, { qty: 1 })],
+    });
   }, [product]);
 
   useEffect(() => {

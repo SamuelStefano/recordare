@@ -147,6 +147,45 @@ describe('checkout', () => {
   });
 });
 
+describe('medição', () => {
+  const events = () =>
+    (window.dataLayer ?? []).flatMap((entry) =>
+      entry && typeof entry === 'object' && 'event' in entry ? [entry as { event: string }] : []
+    );
+
+  beforeEach(() => {
+    delete window.dataLayer;
+  });
+
+  it('conta o pedido como lead, com a referência e sem nome nem telefone', async () => {
+    const user = userEvent.setup();
+    createOrder.mockResolvedValue('7b2f4a10-0000-4000-8000-000000000000');
+    renderWithProviders(<App />, { route: '/carrinho' });
+
+    await fillForm(user);
+    await user.click(screen.getByRole('button', { name: 'Enviar pedido' }));
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: 'Pedido recebido' })).toBeInTheDocument()
+    );
+
+    expect(events().map((e) => e.event)).toEqual(['view_cart', 'begin_checkout', 'generate_lead']);
+    const lead = events().find((e) => e.event === 'generate_lead');
+    expect(lead).toMatchObject({
+      ecommerce: { currency: 'BRL', value: 249, transaction_id: '7B2F4A10' },
+    });
+    expect(JSON.stringify(window.dataLayer)).not.toMatch(/Maria|44999990000/);
+  });
+
+  it('não conta checkout quando o formulário é recusado', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<App />, { route: '/carrinho' });
+
+    await user.click(screen.getByRole('button', { name: 'Enviar pedido' }));
+
+    expect(events().map((e) => e.event)).toEqual(['view_cart']);
+  });
+});
+
 describe('peça esgotada', () => {
   // O banco só recusa peça inativa: esgotada passa e vira pedido que a loja não consegue produzir.
   it('avisa e não deixa enviar enquanto a peça estiver sem estoque', async () => {
