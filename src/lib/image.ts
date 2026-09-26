@@ -25,3 +25,17 @@ export function srcSetFor(src: string): string | undefined {
     })
     .join(', ');
 }
+
+// Host de banco de imagem: a foto não é da peça, é retrato de terceiro que veio junto na semeadura
+// do catálogo. Qualquer canal que baixe a imagem (Mercado Livre, Google, Meta) publicaria a peça com
+// a foto de outra pessoa.
+const STOCK_PHOTO_HOSTS = /(^|\.)wikimedia\.org$|(^|\.)wikipedia\.org$|(^|\.)unsplash\.com$/;
+
+export function stockPhotoHost(src: string): string | null {
+  try {
+    const { host } = new URL(src);
+    return STOCK_PHOTO_HOSTS.test(host) ? host : null;
+  } catch {
+    return null;
+  }
+}

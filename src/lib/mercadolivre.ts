@@ -1,5 +1,6 @@
 import type { Product } from './catalog';
 import { colorLabel, finishLabel } from './labels';
+import { stockPhotoHost } from './image';
 
 // Regras do Mercado Livre que quebram anúncio na publicação, não na revisão:
 // título de até 60 caracteres, sem palavra promocional, sem emoji, sem link, e a
@@ -165,10 +166,6 @@ export function buildListing(product: Product, storeOrigin: string): Listing {
   };
 }
 
-// Host de banco de imagem: a foto não é da peça, é retrato de terceiro que veio junto na semeadura
-// do catálogo. Publicar assim não é risco técnico, é anunciar produto com a foto de outra pessoa.
-const PLACEHOLDER_HOSTS = /(^|\.)wikimedia\.org$|(^|\.)wikipedia\.org$|(^|\.)unsplash\.com$/;
-
 // O Mercado Livre baixa a foto na hora de criar o anúncio, então tudo que estiver errado na imagem
 // vira anúncio publicado errado. Avisa em vez de reprovar: bloquear pararia o kit inteiro, e quem
 // troca foto de catálogo é o dono da loja, não o build.
@@ -179,7 +176,7 @@ function checkImageHost(listing: Listing, storeOrigin: string): ListingIssue[] {
     {
       sku: listing.sku,
       field: 'image',
-      message: PLACEHOLDER_HOSTS.test(host)
+      message: stockPhotoHost(listing.imageUrl)
         ? `NÃO PUBLIQUE: a foto é de banco de imagem (${host}), não é a peça — troque pela foto real antes de anunciar`
         : `Foto hospedada fora da loja (${host}) — se o host responder 429 o anúncio sobe sem imagem`,
     },

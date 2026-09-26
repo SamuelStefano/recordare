@@ -1,34 +1,17 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import type { Product } from '../src/lib/catalog';
 import { dictionaries } from '../src/lib/i18n';
 import { productDescription, productName } from '../src/lib/labels';
 import { productJsonLd, storeJsonLd } from '../src/lib/structured-data';
+import { fetchActiveProducts, storeOrigin } from './catalog-source';
 
 // GitHub Pages não reescreve rota de SPA: /peca/<slug> cairia no 404.html e responderia 404 para
 // o Google. Escrever um index.html por rota resolve o status e ainda entrega o <head> certo sem
 // depender de JavaScript — o corpo continua hidratando no cliente.
-const url = process.env.VITE_SUPABASE_URL;
-const key = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-const origin = (
-  process.env.STORE_ORIGIN ?? 'https://samuelstefano.github.io/recordare'
-).replace(/\/$/, '');
+const origin = storeOrigin();
 const dist = join(process.cwd(), 'dist');
 const pt = dictionaries.pt;
-
-if (!url || !key) {
-  console.error('Faltam VITE_SUPABASE_URL e VITE_SUPABASE_PUBLISHABLE_KEY no ambiente.');
-  process.exit(1);
-}
-
-const response = await fetch(`${url}/rest/v1/products?active=eq.true&order=sort_order&select=*`, {
-  headers: { apikey: key, Authorization: `Bearer ${key}`, 'Accept-Profile': 'recordare' },
-});
-if (!response.ok) throw new Error(`PostgREST ${response.status}: ${await response.text()}`);
-const products = ((await response.json()) as Product[]).map((row) => ({
-  ...row,
-  price: Number(row.price),
-}));
+const products = await fetchActiveProducts();
 
 const escape = (value: string) =>
   value

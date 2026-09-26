@@ -41,6 +41,13 @@ jobs:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
           STORE_ORIGIN: ${{ vars.STORE_ORIGIN }}
+      # Google Merchant Center e Meta buscam o feed por URL todo dia: gerar no deploy mantém preço e
+      # estoque iguais aos do site.
+      - run: npm run feeds
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          STORE_ORIGIN: ${{ vars.STORE_ORIGIN }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
         with:
